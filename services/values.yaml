@@ -5,7 +5,7 @@
 global:
   domain: t01
   location: bl01t
-  enabled: true
+  enabled: false
 
 # shared settings for all IOC types
 shared: &shared
