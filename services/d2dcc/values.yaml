@@ -2,7 +2,7 @@
 
 ioc-instance:
   image: gitlab.diamond.ac.uk:5050/controls/containers/iocs/ioc-d2dcc/ioc-d2dcc-linux-runtime:add-dcc-modules
-
+  name: IOC-1
   # mount in the beamline data folder
   # dataVolume:
   #   pvc: false
@@ -16,3 +16,9 @@ ioc-instance:
     #      key: options
     - name: "OPTIONS"
       value: -Rv
+
+    - name: "FPGA_NAME"
+      value: SIC/DPS
+
+    - name: "FPGA_NUMBER"
+      value: 123
