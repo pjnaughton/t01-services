@@ -20,8 +20,8 @@ SERVER_HOSTNAME=${HOSTNAME:=$DEFAULT_HOST}
 
 export EPICS_CA_MAX_ARRAY_BYTES=1000000
 
-cd "$D2DCC_DIR/dpsApp"
-
+#cd "$D2DCC_DIR/dpsApp"
+cd /epics/support/d2dcc/dpsApp
 OPTS="$PERSISTANCE_OPT $ERROR_FILE_OPT"
 ARCH="$(uname -m)"
 if [ $ARCH = "x86_64" ]; then
