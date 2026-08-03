@@ -1,24 +1,19 @@
+# yaml-language-server: $schema=../../.helm-shared/values.schema.json
+
 ioc-instance:
   image: gitlab.diamond.ac.uk:5050/controls/containers/iocs/ioc-d2dcc/ioc-d2dcc-linux-runtime:add-dcc-modules
-  name: IOC-1
+  name: dps
   # mount in the beamline data folder
   # dataVolume:
   #   pvc: false
   #   hostPath: /dls/ixx/data
 
   env:
-    #- name: "OPTIONS"
-    #  valueFrom:
-    #    configMapKeyRef:
-    #      name: config/configmap.yaml
-    #      key: options
-    - name: "OPTIONS"
-      value: -Rv
-
+    - name: DEVICE
+      value: test-dps
     - name: "FPGA_NAME"
-      value: SIC/DPS
-
-    - name: "FPGA_NUMBER"
-      value: 123
-
-  liveness: ""
+      value: DPS
+    - name: "HOSTNAME"
+      value: ws613.diamond.ac.uk
+    - name: "PORT"
+      value: 8888
