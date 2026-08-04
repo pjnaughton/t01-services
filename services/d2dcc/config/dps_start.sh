@@ -32,4 +32,7 @@ fi
 
 ARGS="$DEVICE $SERVER_HOSTNAME $SERVER_PORT"
 pwd
+ls
+ls bin
+ls bin/linux-x86_64
 $BIN_DIR/dls_dps $OPTS $ARGS
