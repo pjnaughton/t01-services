@@ -3,6 +3,7 @@
 ioc-instance:
   image: gitlab.diamond.ac.uk:5050/controls/containers/iocs/ioc-d2dcc/ioc-d2dcc-linux-runtime:add-dcc-modules
   name: dps
+  imagePullPolicy: Always
   # mount in the beamline data folder
   # dataVolume:
   #   pvc: false
