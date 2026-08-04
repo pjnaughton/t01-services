@@ -31,5 +31,5 @@ else
 fi
 
 ARGS="$DEVICE $SERVER_HOSTNAME $SERVER_PORT"
-echo ${pwd}
+
 $BIN_DIR/dls_dps $OPTS $ARGS
