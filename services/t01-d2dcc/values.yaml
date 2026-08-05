@@ -23,12 +23,12 @@ ioc-instance:
 # NOTE: the variables reach the container in alphabetical order, so do not
 # rely on k8s $(VAR) references between them.
 iocs:
-  - NAME: Test01
+  - NAME: test01
     FPGA_NAME: DPS
     HOSTNAME: ws613.diamond.ac.uk
     PORT: 8888
 
-  - NAME: Test02
+  - NAME: test02
     FPGA_NAME: DPS
     HOSTNAME: colibri30.diamond.ac.uk
     PORT: 8888
