@@ -9,6 +9,15 @@ ioc-instance:
   image: gitlab.diamond.ac.uk:5050/controls/containers/iocs/ioc-d2dcc/ioc-d2dcc-linux-runtime:add-dcc-modules
   imagePullPolicy: Always
 
+  env:
+    - name: d2dcc
+      FPGA_BIN_DIR: /dls_sw/...
+
+      SERVER_PROC_PORT: 7002
+      SERVER_PORT: 8888
+
+      D2DCC_DIR: /epics/support/d2dcc
+
   # mount in the beamline data folder
   # dataVolume:
   #   pvc: false
@@ -23,12 +32,15 @@ ioc-instance:
 # NOTE: the variables reach the container in alphabetical order, so do not
 # rely on k8s $(VAR) references between them.
 iocs:
-  - NAME: test01
-    FPGA_NAME: DPS
-    HOSTNAME: ws613.diamond.ac.uk
-    PORT: 8888
+  # What is the name of the serial connection ports
+  - NAME: MAGNET_NAME
+    DEVICE: MAGNET_NAME
 
-  - NAME: test02
-    FPGA_NAME: DPS
-    HOSTNAME: colibri30.diamond.ac.uk
-    PORT: 8888
+    TELNET_SERVER: TS0001
+    TELNET_PORT: 30
+
+    FPGA_TYPE: SIC/DPS
+    FPGA_TYPE_NUMBER: 130
+
+    SERVER_HOSTNAME: colibri30
+    EXTRA_OPTS: "-v"
