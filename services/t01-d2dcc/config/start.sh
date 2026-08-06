@@ -4,7 +4,7 @@ set -e
 cd $D2DCC_DIR
 #####  Start the server #####
 
-TOOLS_PATH=${D2DCC_DIR}/tcpServer/tools
+TOOLS_PATH=${D2DCC_DIR}/tcpServerApp/tools
 
 sed -i "s/@@FPGA_TYPE@@/$FPGA_TYPE/" $TOOLS_PATH/env
 sed -i "s/@@FPGA_TYPE_NUM@@/$FPGA_TYPE_NUM/" $TOOLS_PATH/env
