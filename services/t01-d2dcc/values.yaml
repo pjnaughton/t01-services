@@ -33,7 +33,7 @@ ioc-instance:
 # rely on k8s $(VAR) references between them.
 iocs:
   # What is the name of the serial connection ports
-  - NAME: MAGNET_NAME
+  - NAME: magnet-name
     DEVICE: MAGNET_NAME
 
     TELNET_SERVER: TS0001
