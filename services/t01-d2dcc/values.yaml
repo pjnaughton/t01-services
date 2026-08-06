@@ -37,6 +37,8 @@ iocs:
 
     TELNET_SERVER: TS0001
     TELNET_PORT: 30
+
+    FPGA_BIN_DIR: /dls_sw/test.txt
     SERVER_PROC_PORT: 7002
     SERVER_PORT: 8888
     D2DCC_DIR: /epics/support/d2dcc
