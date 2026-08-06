@@ -11,11 +11,9 @@ ioc-instance:
 
   env:
     - name: d2dcc
-      FPGA_BIN_DIR: /dls_sw/...
-
+      # FPGA_BIN_DIR: /dls_sw/...
       SERVER_PROC_PORT: 7002
       SERVER_PORT: 8888
-
       D2DCC_DIR: /epics/support/d2dcc
 
   # mount in the beamline data folder
