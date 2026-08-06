@@ -4,12 +4,12 @@ set -e
 cd $D2DCC_DIR
 #####  Start the server #####
 
-TOOLS_PATH=tcpServer/tools
+TOOLS_PATH=${D2DCC_DIR}/tcpServer/tools
 
 sed -i "s/@@FPGA_TYPE@@/$FPGA_TYPE/" $TOOLS_PATH/env
 sed -i "s/@@FPGA_TYPE_NUM@@/$FPGA_TYPE_NUM/" $TOOLS_PATH/env
 
-python tcpServerApp/tools/init_server.py
+expect $TOOLS_PATH/init_server.exp
 
 ##### Start Soft IOC #####
 if [[ "$FPGA_TYPE" == *"DPS"* ]]; then
