@@ -6,8 +6,8 @@ cd $D2DCC_DIR
 
 TOOLS_PATH=tcpServer/tools
 
-sed -i "s/@@FPGA_TYPE@@/$FPGA_TYPE" $TOOLS_PATH/env
-sed -i "s/@@FPGA_TYPE_NUM@@/$FPGA_TYPE_NUM" $TOOLS_PATH/env
+sed -i "s/@@FPGA_TYPE@@/$FPGA_TYPE/" $TOOLS_PATH/env
+sed -i "s/@@FPGA_TYPE_NUM@@/$FPGA_TYPE_NUM/" $TOOLS_PATH/env
 
 python tcpServerApp/tools/init_server.py
 
