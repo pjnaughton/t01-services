@@ -11,9 +11,6 @@ ioc-instance:
 
   env:
     - name: d2dcc
-      SERVER_PROC_PORT: 7002
-      SERVER_PORT: 8888
-      D2DCC_DIR: /epics/support/d2dcc
 
   # mount in the beamline data folder
   # dataVolume:
@@ -40,3 +37,6 @@ iocs:
 
     TELNET_SERVER: TS0001
     TELNET_PORT: 30
+    SERVER_PROC_PORT: 7002
+    SERVER_PORT: 8888
+    D2DCC_DIR: /epics/support/d2dcc
