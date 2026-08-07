@@ -21,7 +21,7 @@ proc begin_telnet_connection {server port} {
         send "\n\r"
         exp_continue
     }
-    "# " {
+    expect "# " {
         return $spawn_id
     }
     timeout {
