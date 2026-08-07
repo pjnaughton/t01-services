@@ -11,7 +11,9 @@ ioc-instance:
 
   env:
     - name: d2dcc
-
+      TEST1: TEST
+      TEST2: TEST2
+      TEST3: TEST3
   # mount in the beamline data folder
   # dataVolume:
   #   pvc: false
