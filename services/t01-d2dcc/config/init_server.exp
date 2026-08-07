@@ -1,0 +1,45 @@
+#!/usr/bin/expect -f
+
+set timeout 30
+
+set telnet_server $env(TELNET_SERVER)
+set telnet_port $env(TELNET_PORT)
+set colibri_hostname $env(SERVER_HOSTNAME)
+set d2dcc_dir $env(D2DCC_DIR)
+set fpga_bin_dir $env(FPGA_BIN_DIR)
+set fpga_type $env(FPGA_TYPE)
+set installer_dir "/tmp"
+
+proc begin_telnet_connection {server port} {
+    spawn telnet $server $port
+    expect "Connected to $server" { send "\r" }
+    expect "# "
+    return $spawn_id
+}
+
+# Configure hostname on the colibri
+set telnet_id [begin_telnet_connection $telnet_server $telnet_port]
+send -i $telnet_id "configure-network -w -r dev $colibri_hostname\r"
+expect -i $telnet_id "# "
+puts "Hostname configured to: $colibri_hostname"
+close -i $telnet_id
+
+# Copy installer files to colibri via SCP
+spawn scp \
+    "$d2dcc_dir/tcpServerApp/tools/env" \
+    "$d2dcc_dir/bin/linux-arm_elhf/installer_server.sh" \
+    "$fpga_bin_dir/$fpga_type.bin" \
+    "root@$colibri_hostname:$installer_dir"
+
+expect "yes/no" { send "yes\r" }
+expect "password" { send "root\r" }
+expect eof
+puts "Files transfered to colibri"
+
+# Run the server installer script
+set telnet_id [begin_telnet_connection $telnet_server $telnet_port]
+send -i $telnet_id "cd $installer_dir\r"
+expect -i $telnet_id "# " { send -i $telnet_id "./installer_server.sh -i\r" }
+expect -i $telnet_id "ok."
+puts "Server has been installed."
+close -i $telnet_id
