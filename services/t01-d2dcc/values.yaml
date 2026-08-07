@@ -36,8 +36,9 @@ iocs:
     SERVER_HOSTNAME: colibri30
 
     TELNET_SERVER: TS0001
-    TELNET_PORT: 30
+    TELNET_PORT: 7030
 
+    # Should be global variables
     FPGA_BIN_DIR: /dls_sw/test.txt
     SERVER_PROC_PORT: 7002
     SERVER_PORT: 8888
