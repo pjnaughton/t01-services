@@ -15,7 +15,7 @@ set fpga_type_number $env(FPGA_TYPE_NUMBER)
 set installer_dir "/tmp"
 
 proc begin_telnet_connection {server port} {
-    spawn telnet $server $port
+    spawn nc $server $port
     expect {
         "Connected to $server" {
             send "\n\r"
