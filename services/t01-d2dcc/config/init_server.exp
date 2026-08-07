@@ -1,6 +1,6 @@
 #!/usr/bin/expect -f
 
-set timeout 30
+set timeout 10
 
 set d2dcc_dir $env(D2DCC_DIR)
 
@@ -16,50 +16,94 @@ set installer_dir "/tmp"
 
 proc begin_telnet_connection {server port} {
     spawn telnet $server $port
-    puts "Process spawned"
     expect {
         "Connected to $server" {
             send "\n\r"
-            expect "# "
             return $spawn_id }
+        "Connection closed by foreign host." {
+            puts "Error: $server:$port refused the connection"
+        }
         timeout {
-            puts "Error: Connection to $server:$port timed out."
-            exit 1
+            puts "Error: Timed out trying to connect to $server:$port."
         }
         eof {
             puts "Error: Failed to connect to $server:$port."
-            exit 1
         }
     }
+    close
+    wait
+    exit 1
 }
 
 # Configure hostname on the colibri
 set telnet_id [begin_telnet_connection $telnet_server $telnet_port]
 send -i $telnet_id "configure-network -w -r dev $hostname\r"
-expect -i $telnet_id "# "
-puts "Hostname configured to: $hostname"
+expect -i $telnet_id {
+    "Starting local mounts: " {
+        expect "ok."
+        expect "# "
+        puts "Hostname configured to: $hostname"
+    }
+    timeout {
+        puts "Error: Timed out configuring the network."
+        close -i $telnet_id
+        exit 1
+    }
+    eof {
+        puts "Error: Failed to configure the network."
+        close -i $telnet_id
+        exit 1
+    }
+}
+
 close -i $telnet_id
 
 # Copy installer files to colibri via SCP
 spawn scp \
-    "$d2dcc_dir/installer_server.sh" \
+    "$d2dcc_dir/bin/linux-arm_elhf/installer_server.sh" \
     "$fpga_bin_dir/$fpga_type.bin" \
     "root@$hostname:$installer_dir"
 
-expect "yes/no" { send "yes\r" }
-expect "password" { send "root\r" }
-expect eof
-puts "Files transfered to colibri"
+expect { -timeout 10
+    "yes/no" {
+        send "yes\r"
+    }
+}
+expect "password" {
+    send "root\r"
+    expect eof
+    puts "Files transfered to colibri"
+}
 
 # Run the server installer script
 set telnet_id [begin_telnet_connection $telnet_server $telnet_port]
-expect -i $telnet_id "# " {
-    send -i $telnet_id "echo \"export K8S_FPGA_TYPE=$fpga_type; export K8S_FPGA_TYPE_NUMBER=$fpga_type_number \" > /opt/server_env\r"
+send -i $telnet_id "echo \"export K8S_FPGA_TYPE=$fpga_type; export K8S_FPGA_TYPE_NUMBER=$fpga_type_number \" > /opt/server_env\r"
+expect -i $telnet_id {
+    "# " {
+        puts "env file written to \/opt\/server_env"
+    }
+    timeout {
+        puts "ERROR: Timed out writing env file"
+        close -i $telnet_id
+        exit 1
+    }
+    eof {
+        puts "ERROR: Failed to write to env file"
+        close -i $telnet_id
+        exit 1
+    }
 }
-expect -i $telnet_id "# "
-puts "env file written to \/opt\/server_env"
 send -i $telnet_id "cd $installer_dir\r"
-expect -i $telnet_id "# " { send -i $telnet_id "./installer_server.sh -i\r" }
-expect -i $telnet_id "ok."
-puts "Server has been installed."
+send -i $telnet_id "./installer_server.sh -i\r"
+expect -i $telnet_id {
+    "ok." {
+        puts "Server has been installed."
+    }
+    timeout {
+        puts "ERROR: timed out installing the server"
+        close -i $telnet_id
+        exit 1
+    }
+}
 close -i $telnet_id
+exit 0
