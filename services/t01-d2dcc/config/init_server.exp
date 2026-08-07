@@ -3,11 +3,10 @@
 set timeout 120
 
 set d2dcc_dir $env(D2DCC_DIR)
-set here $env(CONFIG_DIR)
 
 set telnet_server $env(TELNET_SERVER)
 set telnet_port $env(TELNET_PORT)
-set colibri_hostname $env(SERVER_HOSTNAME)
+set hostname $env(SERVER_HOSTNAME)
 
 set fpga_bin_dir $env(FPGA_BIN_DIR)
 set fpga_type $env(FPGA_TYPE)
@@ -15,9 +14,9 @@ set fpga_type_number $env(FPGA_TYPE_NUMBER)
 
 set installer_dir "/tmp"
 
-
 proc begin_telnet_connection {server port} {
     spawn telnet $server $port
+    puts "Process spawned"
     expect "Connected to $server"
     send "\r"
     expect "# "
@@ -26,23 +25,16 @@ proc begin_telnet_connection {server port} {
 
 # Configure hostname on the colibri
 set telnet_id [begin_telnet_connection $telnet_server $telnet_port]
-send -i $telnet_id "configure-network -w -r dev $colibri_hostname\r"
+send -i $telnet_id "configure-network -w -r dev $hostname\r"
 expect -i $telnet_id "# "
-puts "Hostname configured to: $colibri_hostname"
-
-expect -i $telnet_id "# " {
-    send -i $telnet_id "echo \"export K8S_FPGA_TYPE=$fpga_type; export K8S_FPGA_TYPE_NUMBER=$fpga_type_number \" > /opt/server_env\r"
-}
-expect -i $telnet_id "# "
-puts "env file written to \/opt\/server_env"
+puts "Hostname configured to: $hostname"
 close -i $telnet_id
 
 # Copy installer files to colibri via SCP
 spawn scp \
-    "$here/env" \
-    "$here/installer_server.sh" \
+    "$d2dcc_dir/installer_server.sh" \
     "$fpga_bin_dir/$fpga_type.bin" \
-    "root@$colibri_hostname:$installer_dir"
+    "root@$hostname:$installer_dir"
 
 expect "yes/no" { send "yes\r" }
 expect "password" { send "root\r" }
@@ -51,6 +43,11 @@ puts "Files transfered to colibri"
 
 # Run the server installer script
 set telnet_id [begin_telnet_connection $telnet_server $telnet_port]
+expect -i $telnet_id "# " {
+    send -i $telnet_id "echo \"export K8S_FPGA_TYPE=$fpga_type; export K8S_FPGA_TYPE_NUMBER=$fpga_type_number \" > /opt/server_env\r"
+}
+expect -i $telnet_id "# "
+puts "env file written to \/opt\/server_env"
 send -i $telnet_id "cd $installer_dir\r"
 expect -i $telnet_id "# " { send -i $telnet_id "./installer_server.sh -i\r" }
 expect -i $telnet_id "ok."
