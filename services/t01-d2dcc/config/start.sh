@@ -3,9 +3,6 @@ set -e
 
 #####  Start the server #####
 
-sed -i "s/@@FPGA_TYPE@@/$FPGA_TYPE/" ${CONFIG_DIR}/env
-sed -i "s/@@FPGA_TYPE_NUM@@/$FPGA_TYPE_NUM/" ${CONFIG_DIR}/env
-
 expect ${CONFIG_DIR}/init_server.exp
 
 ##### Start Soft IOC #####

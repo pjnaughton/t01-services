@@ -1,5 +1,0 @@
-#!/usr/bin/sh
-
-# Script to transfer environment variables from soft IOC pod to the colibri
-export K8S_FPGA_TYPE=@@FPGA_TYPE@@
-export K8S_FPGA_TYPE_NUMBER=@@FPGA_TYPE_NUM@@
