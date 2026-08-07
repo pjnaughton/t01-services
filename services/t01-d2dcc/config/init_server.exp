@@ -1,6 +1,6 @@
 #!/usr/bin/expect -f
 
-set timeout 10
+set timeout -1
 
 set d2dcc_dir $env(D2DCC_DIR)
 

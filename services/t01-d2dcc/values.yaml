@@ -15,8 +15,6 @@ ioc-instance:
       TEST2: TEST2
       TEST3: TEST3
 
-  command: ["bash", "-c", "sleep", "100000"]
-
   # mount in the beamline data folder
   # dataVolume:
   #   pvc: false
