@@ -17,21 +17,20 @@ set installer_dir "/tmp"
 proc begin_telnet_connection {server port} {
     spawn telnet $server $port
     puts "Process spawned"
-    expect "Connected to $server" {
-        send "\n\r"
-        exp_continue
-    }
-    expect "# " {
-        return $spawn_id
-    }
-    timeout {
+    expect {
+        "Connected to $server" {
+            send "\n\r"
+            expect "# "
+            return $spawn_id }
+        timeout {
             puts "Error: Connection to $server:$port timed out."
             exit 1
-    }
-    eof {
+        }
+        eof {
             puts "Error: Failed to connect to $server:$port."
             exit 1
         }
+    }
 }
 
 # Configure hostname on the colibri
