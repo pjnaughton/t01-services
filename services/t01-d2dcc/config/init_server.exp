@@ -6,6 +6,7 @@ set telnet_server $env(TELNET_SERVER)
 set telnet_port $env(TELNET_PORT)
 set colibri_hostname $env(SERVER_HOSTNAME)
 set d2dcc_dir $env(D2DCC_DIR)
+set here $env(CONFIG_DIR)
 set fpga_bin_dir $env(FPGA_BIN_DIR)
 set fpga_type $env(FPGA_TYPE)
 set installer_dir "/tmp"
@@ -26,8 +27,8 @@ close -i $telnet_id
 
 # Copy installer files to colibri via SCP
 spawn scp \
-    "$d2dcc_dir/tcpServerApp/tools/env" \
-    "$d2dcc_dir/bin/linux-arm_elhf/installer_server.sh" \
+    "$here/env" \
+    "$here/installer_server.sh" \
     "$fpga_bin_dir/$fpga_type.bin" \
     "root@$colibri_hostname:$installer_dir"
 
