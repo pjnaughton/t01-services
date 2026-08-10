@@ -50,10 +50,9 @@ ioc-instance:
 # rely on k8s $(VAR) references between them.
 iocs:
   # What is the name of the serial connection ports
-  - NAME: magnet-name
+  - NAME: magnet-one
     EXTRA_OPTS: "-v"
 
     SERVER_HOSTNAME: colibri30
-
     TELNET_SERVER: TS0001
     TELNET_PORT: 7030

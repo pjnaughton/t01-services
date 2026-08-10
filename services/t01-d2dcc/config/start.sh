@@ -1,11 +1,12 @@
 #!/bin/bash
 set -e
 
-#####  Start the server #####
+#  Start the server ############################################################
 
 expect ${CONFIG_DIR}/init_server.exp
 
-##### Start Soft IOC #####
+# Start Soft IOC ###############################################################
+
 if [[ "$FPGA_TYPE" == *"DPS"* ]]; then
     echo "Running DPS Start Script"
     IOC_DIR=${D2DCC_DIR}/dpsApp
