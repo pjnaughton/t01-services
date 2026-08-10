@@ -20,6 +20,15 @@ ioc-instance:
   #   pvc: false
   #   hostPath: /dls/ixx/data
 
+  nodeSelector:
+    nodetype: accelerator-ioc
+
+  tolerations:
+    - key: nodetype
+      operator: Equal
+      value: accelerator-ioc
+      effect: NoSchedule
+
 # One entry per IOC. Every entry MUST have a NAME - it is appended to the
 # release name, so a folder called ixx-ea-thing deploys ixx-ea-thing-01 and
 # ixx-ea-thing-02 below, each with its own StatefulSet, ConfigMap and PVC.
