@@ -10,10 +10,12 @@ ioc-instance:
   imagePullPolicy: Always
 
   env:
-    - name: d2dcc
-      TEST1: TEST
-      TEST2: TEST2
-      TEST3: TEST3
+    - name: TYPE
+      value: d2dcc
+    - name: TEST1
+      value: TEST
+    - name: TEST2
+      value: TEST2
 
   # mount in the beamline data folder
   # dataVolume:
