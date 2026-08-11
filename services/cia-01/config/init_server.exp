@@ -48,22 +48,27 @@ expect -i $telnet_id {
     }
     "Hostname '$hostname' not known for network $host_network" {
         puts "Error: Bad hostname"
+        puts "Closing Telnet Connection"
         close -i $telnet_id
         exit 1
     }
     timeout {
         puts "Error: Timed out configuring the network."
+        puts "Closing Telnet Connection"
         close -i $telnet_id
         exit 1
     }
     eof {
         puts "Error: Failed to configure the network."
+        puts "Closing Telnet Connection"
         close -i $telnet_id
         exit 1
     }
 }
 
+puts "Closing Telnet Connection"
 close -i $telnet_id
+puts "\r"
 
 # Copy installer files to colibri via SCP
 spawn scp \
@@ -91,11 +96,13 @@ expect -i $telnet_id {
     }
     timeout {
         puts "ERROR: Timed out writing env file"
+        puts "Closing Telnet Connection"
         close -i $telnet_id
         exit 1
     }
     eof {
         puts "ERROR: Failed to write to env file"
+        puts "Closing Telnet Connection"
         close -i $telnet_id
         exit 1
     }
@@ -108,6 +115,7 @@ expect -i $telnet_id {
     }
     timeout {
         puts "ERROR: timed out installing the server"
+        puts "Closing Telnet Connection"
         close -i $telnet_id
         exit 1
     }
