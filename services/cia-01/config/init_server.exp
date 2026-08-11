@@ -19,7 +19,7 @@ set host_network "dev"
 proc close_telnet {process_id} {
     puts stdout "\nClosing Telnet Connection"
     close -i $process_id
-    wait -i $telnet_id
+    wait -i $process_id
 }
 
 proc begin_telnet_connection {server port} {
