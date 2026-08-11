@@ -4,6 +4,8 @@ set -e
 #  Start the server ############################################################
 
 expect ${CONFIG_DIR}/init_server.exp
+if [ $? != 0 ]; then
+    exit 1
 
 # Start Soft IOC ###############################################################
 
