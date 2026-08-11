@@ -71,7 +71,7 @@ close -i $telnet_id
 puts "\r"
 
 # Copy installer files to colibri via SCP
-spawn scp \
+spawn scp -O \
     "$d2dcc_dir/bin/linux-arm_elhf/installer_server.sh" \
     "$fpga_bin_dir/$fpga_type.bin" \
     "root@$hostname:$installer_dir"
