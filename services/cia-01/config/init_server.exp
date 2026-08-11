@@ -1,6 +1,6 @@
 #!/usr/bin/expect -f
 
-set timeout 30
+set timeout 60
 
 set d2dcc_dir $env(D2DCC_DIR)
 
@@ -71,11 +71,11 @@ spawn scp \
     "$fpga_bin_dir/$fpga_type.bin" \
     "root@$hostname:$installer_dir"
 
-expect { -timeout 10
-    "yes/no" {
+# SHA Fingerprint Promt
+expect "yes/no" {
         send "yes\r"
-    }
 }
+
 expect "password" {
     send "root\r"
     expect eof
