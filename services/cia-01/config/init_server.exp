@@ -6,7 +6,7 @@ set d2dcc_dir $env(D2DCC_DIR)
 
 set telnet_server $env(TELNET_SERVER)
 set telnet_port $env(TELNET_PORT)
-set hostname $env(SERVER_HOSTNAME)
+set hostname $env(NAME)
 
 set fpga_bin_dir $env(FPGA_BIN_DIR)
 set fpga_type $env(FPGA_TYPE)
