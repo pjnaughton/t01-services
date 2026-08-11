@@ -1,6 +1,6 @@
 #!/usr/bin/expect -f
 
-set timeout -1
+set timeout 30
 
 set d2dcc_dir $env(D2DCC_DIR)
 
@@ -14,11 +14,13 @@ set fpga_type_number $env(FPGA_TYPE_NUMBER)
 
 set installer_dir "/tmp"
 
+set host_network "dev"
 proc begin_telnet_connection {server port} {
     spawn telnet $server $port
     expect {
         "Connected to $server" {
             send "\n\r"
+            expect "# "
             return $spawn_id }
         "Connection closed by foreign host." {
             puts "Error: $server:$port refused the connection"
@@ -37,12 +39,17 @@ proc begin_telnet_connection {server port} {
 
 # Configure hostname on the colibri
 set telnet_id [begin_telnet_connection $telnet_server $telnet_port]
-send -i $telnet_id "configure-network -w -r dev $hostname\r"
+send -i $telnet_id "configure-network -w -r $host_network $hostname\r"
 expect -i $telnet_id {
     "Starting local mounts: " {
         expect "ok."
         expect "# "
         puts "Hostname configured to: $hostname"
+    }
+    "Hostname '$hostname' not known for network $host_network" {
+        puts "Error: Bad hostname"
+        close -i $telnet_id
+        exit 1
     }
     timeout {
         puts "Error: Timed out configuring the network."
