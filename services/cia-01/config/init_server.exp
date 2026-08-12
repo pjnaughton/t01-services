@@ -17,28 +17,28 @@ set installer_dir "/tmp"
 set host_network "dev"
 
 # Configure hostname on the colibri
-spawn telnet $server $port
+spawn telnet $telnet_server $telnet_port
 expect {
-    "Connected to $server" {
+    "Connected to $telnet_server" {
         send "\n\r"
         expect -re {.*#\s*}
     }
     "Connection closed by foreign host." {
-        puts stdout "\nError: $server:$port refused the connection"
+        puts stdout "\nError: $telnet_server:$telnet_port refused the connection"
         puts stdout "\nClosing Telnet Connection"
         close
         wait
         exit 1
     }
     timeout {
-        puts stdout "\nError: Timed out trying to connect to $server:$port."
+        puts stdout "\nError: Timed out trying to connect to $telnet_server:$telnet_port."
         puts stdout "\nClosing Telnet Connection"
         close
         wait
         exit 1
     }
     eof {
-        puts stdout "\nError: Failed to connect to $server:$port."
+        puts stdout "\nError: Failed to connect to $telnet_server:$telnet_port."
         puts stdout "\nClosing Telnet Connection"
         close
         wait
@@ -95,28 +95,28 @@ expect "password" {
 }
 
 # Run the server installer script
-spawn telnet $server $port
+spawn telnet $telnet_server $telnet_port
 expect {
-    "Connected to $server" {
+    "Connected to $telnet_server" {
         send "\n\r"
         expect -re {.*#\s*}
     }
     "Connection closed by foreign host." {
-        puts stdout "\nError: $server:$port refused the connection"
+        puts stdout "\nError: $telnet_server:$telnet_port refused the connection"
         puts stdout "\nClosing Telnet Connection"
         close
         wait
         exit 1
     }
     timeout {
-        puts stdout "\nError: Timed out trying to connect to $server:$port."
+        puts stdout "\nError: Timed out trying to connect to $telnet_server:$telnet_port."
         puts stdout "\nClosing Telnet Connection"
         close
         wait
         exit 1
     }
     eof {
-        puts stdout "\nError: Failed to connect to $server:$port."
+        puts stdout "\nError: Failed to connect to $telnet_server:$telnet_port."
         puts stdout "\nClosing Telnet Connection"
         close
         wait
