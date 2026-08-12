@@ -9,15 +9,19 @@ if [ $? != 0 ]; then
 
 # Start Soft IOC ###############################################################
 
-if [[ "$FPGA_TYPE" == *"DPS"* ]]; then
-    echo "Running DPS Start Script"
-    IOC_DIR=${D2DCC_DIR}/dpsApp
-elif [ "$FPGA_TYPE" = "SOFB" ] || [ "$FPGA_TYPE" = "FOFB" ]; then
-    echo "Running FRC Start Script"
-    IOC_DIR=${D2DCC_DIR}/frcApp
-else
-    echo "Invalid FPGA Name $FPGA_TYPE"
-    exit 1
-fi
+case "$FPGA_TYPE" in
+    *SIC_DPS*)
+        echo "Running DPS Start Script"
+        IOC_DIR=${D2DCC_DIR}/dpsApp
+        ;;
+    *SOFB* | *FOFB*)
+        echo "Running FRC Start Script"
+        IOC_DIR=${D2DCC_DIR}/frcApp
+        ;;
+    *)
+        echo "Invalid FPGA Name $FPGA_TYPE"
+        exit 1
+        ;;
+esac
 
 source ${IOC_DIR}/runioc $EXTRA_OPTS

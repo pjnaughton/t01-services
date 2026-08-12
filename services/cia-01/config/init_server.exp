@@ -114,12 +114,12 @@ expect -i $telnet_id {
         puts stdout "\nServer has been installed."
     }
     "ERROR" {
-        puts stdout "\nrror: Failed installing server.\r $expect_out"
+        puts stdout "\nError: Failed installing server.\r $expect_out"
         close_telnet $telnet_id
         exit 1
     }
     timeout {
-        puts stdout "\nrror: Timed out installing the server"
+        puts stdout "\nError: Timed out installing the server"
         close_telnet $telnet_id
         exit 1
     }
