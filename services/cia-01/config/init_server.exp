@@ -92,7 +92,7 @@ set telnet_id [begin_telnet_connection $telnet_server $telnet_port]
 send -i $telnet_id "echo \"export K8S_FPGA_TYPE=$fpga_type; export K8S_FPGA_TYPE_NUMBER=$fpga_type_number \" > /opt/server_env\r"
 expect -i $telnet_id {
     -re {.*#\s*} {
-        puts stdout "\nenv file written to \/opt\/server_env"
+        puts stdout "\nenv file written to /opt/server_env"
     }
     timeout {
         puts stdout "\nError: Timed out writing env file"
