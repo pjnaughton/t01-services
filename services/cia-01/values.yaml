@@ -55,7 +55,6 @@ iocs:
 
   - NAME: colibri30
     SERVER_HOSTNAME: colibri30
-    EXTRA_OPTS: '-v'
     TELNET_PORT: 7030
     FPGA_TYPE: SIC_DPS
     FPGA_TYPE_NUMBER: 130
