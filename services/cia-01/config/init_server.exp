@@ -27,7 +27,7 @@ proc begin_telnet_connection {server port} {
     expect {
         "Connected to $server" {
             send "\n\r"
-            expect -re "{.*#\s*}"
+            expect -re {.*#\s*}
             return $spawn_id }
         "Connection closed by foreign host." {
             puts stdout "\nError: $server:$port refused the connection"
@@ -47,7 +47,7 @@ set telnet_id [begin_telnet_connection $telnet_server $telnet_port]
 send -i $telnet_id "configure-network -w -r $host_network $hostname\r"
 expect -i $telnet_id {
     "Starting local mounts: " {
-        expect -re "{.*#\s*}"
+        expect -re {.*#\s*}
         puts stdout "\nHostname configured to: $hostname"
     }
     "Hostname '$hostname' not known for network $host_network" {
@@ -91,7 +91,7 @@ expect "password" {
 set telnet_id [begin_telnet_connection $telnet_server $telnet_port]
 send -i $telnet_id "echo \"export K8S_FPGA_TYPE=$fpga_type; export K8S_FPGA_TYPE_NUMBER=$fpga_type_number \" > /opt/server_env\r"
 expect -i $telnet_id {
-    -re "{.*#\s*}" {
+    -re {.*#\s*} {
         puts stdout "\nenv file written to \/opt\/server_env"
     }
     timeout {
