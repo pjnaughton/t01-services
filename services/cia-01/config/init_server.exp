@@ -95,16 +95,17 @@ expect -i $telnet_id {
         puts stdout "\nenv file written to \/opt\/server_env"
     }
     timeout {
-        puts stdout "\nrror: Timed out writing env file"
+        puts stdout "\nError: Timed out writing env file"
         close_telnet $telnet_id
         exit 1
     }
     eof {
-        puts stdout "\nrror: Failed to write to env file"
+        puts stdout "\nError: Failed to write to env file"
         close_telnet $telnet_id
         exit 1
     }
 }
+
 send -i $telnet_id "cd $installer_dir\r"
 send -i $telnet_id "./installer_server.sh -i\r"
 expect -i $telnet_id {
