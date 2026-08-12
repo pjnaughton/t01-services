@@ -3,9 +3,10 @@ set -e
 
 #  Start the server ############################################################
 
-# expect ${CONFIG_DIR}/init_server.exp
-# if [ $? != 0 ]; then
-#     exit 1
+expect ${CONFIG_DIR}/init_server.exp
+if [ $? != 0 ]; then
+    exit 1
+fi
 
 # Start Soft IOC ###############################################################
 
@@ -24,7 +25,4 @@ case "$FPGA_TYPE" in
         ;;
 esac
 
-echo "Hello World"
-echo "IOC_DIR is $IOC_DIR"
-echo "source ${IOC_DIR}/runioc $EXTRA_OPTS"
 source ${IOC_DIR}/runioc $EXTRA_OPTS
