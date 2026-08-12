@@ -25,8 +25,4 @@ case "$FPGA_TYPE" in
         ;;
 esac
 
-echo $NAME
-echo $SERVER_PORT
-echo $SERVER_HOSTNAME
-
 source ${IOC_DIR}/runioc $EXTRA_OPTS
