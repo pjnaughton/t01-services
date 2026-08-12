@@ -10,11 +10,11 @@ if [ $? != 0 ]; then
 # Start Soft IOC ###############################################################
 
 case "$FPGA_TYPE" in
-    *SIC_DPS*)
-        echo "Running DPS Start Script"
+    SIC_DPS)
+        echo >&1 "Running DPS Start Script"
         IOC_DIR=${D2DCC_DIR}/dpsApp
         ;;
-    *SOFB* | *FOFB*)
+    SOFB | FOFB)
         echo "Running FRC Start Script"
         IOC_DIR=${D2DCC_DIR}/frcApp
         ;;

@@ -39,8 +39,6 @@ proc begin_telnet_connection {server port} {
             puts stdout "\nError: Failed to connect to $server:$port."
         }
     }
-    close
-    wait
     exit 1
 }
 
