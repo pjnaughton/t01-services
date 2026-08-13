@@ -1,12 +1,12 @@
 #!/usr/bin/expect -f
 
-set timeout 60
+set timeout 30
 
 set d2dcc_dir $env(D2DCC_DIR)
 
 set telnet_server $env(TELNET_SERVER)
 set telnet_port $env(TELNET_PORT)
-set hostname $env(NAME)
+set hostname $env(SERVER_HOSTNAME)
 
 set fpga_bin_dir $env(FPGA_BIN_DIR)
 set fpga_type $env(FPGA_TYPE)
@@ -16,7 +16,11 @@ set installer_dir "/tmp"
 
 set host_network "dev"
 
-# Configure hostname on the colibri
+proc log_message {message} {
+    puts stdout "\n$message"
+}
+
+log_message "\n***** Configure hostname on colibri *****"
 spawn telnet $telnet_server $telnet_port
 expect {
     "Connected to $telnet_server" {
@@ -24,22 +28,22 @@ expect {
         expect -re {.*#\s*}
     }
     "Connection closed by foreign host." {
-        puts stdout "\nError: $telnet_server:$telnet_port refused the connection"
-        puts stdout "\nClosing Telnet Connection"
+        log_message "Error: $telnet_server:$telnet_port refused the connection"
+        log_message "Closing Telnet Connection"
         close
         wait
         exit 1
     }
     timeout {
-        puts stdout "\nError: Timed out trying to connect to $telnet_server:$telnet_port."
-        puts stdout "\nClosing Telnet Connection"
+        log_message "Error: Timed out trying to connect to $telnet_server:$telnet_port."
+        log_message "Closing Telnet Connection"
         close
         wait
         exit 1
     }
     eof {
-        puts stdout "\nError: Failed to connect to $telnet_server:$telnet_port."
-        puts stdout "\nClosing Telnet Connection"
+        log_message "Error: Failed to connect to $telnet_server:$telnet_port."
+        log_message "Closing Telnet Connection"
         close
         wait
         exit 1
@@ -49,7 +53,7 @@ send "configure-network -w -r $host_network $hostname\r"
 expect {
     "Starting local mounts: " {
         expect -re {.*#\s*}
-        puts stdout "\nHostname configured to: $hostname"
+        log_message "Hostname configured to: $hostname"
     }
     "Hostname '$hostname' not known for network $host_network" {
         puts stdout "\nError: Bad hostname"
@@ -74,9 +78,13 @@ expect {
     }
 }
 
+log_message "Closing Telnet Connection"
 close
+wait
 
-# Copy installer files to colibri via SCP
+
+
+log_message "\n***** Transfer install files to Colibri via SCP"
 spawn scp \
     "-O" \
     "$d2dcc_dir/bin/linux-arm_elhf/installer_server.sh" \
@@ -85,16 +93,18 @@ spawn scp \
 
 # SHA Fingerprint Promt
 expect "yes/no" {
-        send "yes\r"
+    send "yes\r"
 }
 
 expect "password" {
     send "root\r"
     expect eof
-    puts stdout "\nFiles transfered to colibri"
+    log_message "Files transfered to colibri"
 }
 
-# Run the server installer script
+
+
+log_message "\n***** Set up environment and install the server *****"
 spawn telnet $telnet_server $telnet_port
 expect {
     "Connected to $telnet_server" {
@@ -102,22 +112,22 @@ expect {
         expect -re {.*#\s*}
     }
     "Connection closed by foreign host." {
-        puts stdout "\nError: $telnet_server:$telnet_port refused the connection"
-        puts stdout "\nClosing Telnet Connection"
+        log_message "Error: $telnet_server:$telnet_port refused the connection"
+        log_message "Closing Telnet Connection"
         close
         wait
         exit 1
     }
     timeout {
-        puts stdout "\nError: Timed out trying to connect to $telnet_server:$telnet_port."
-        puts stdout "\nClosing Telnet Connection"
+        log_message "Error: Timed out trying to connect to $telnet_server:$telnet_port."
+        log_message "Closing Telnet Connection"
         close
         wait
         exit 1
     }
     eof {
-        puts stdout "\nError: Failed to connect to $telnet_server:$telnet_port."
-        puts stdout "\nClosing Telnet Connection"
+        log_message "Error: Failed to connect to $telnet_server:$telnet_port."
+        log_message "Closing Telnet Connection"
         close
         wait
         exit 1
@@ -148,20 +158,20 @@ send "cd $installer_dir\r"
 send "./installer_server.sh -i\r"
 expect {
     "ok." {
-        puts stdout "\nServer has been installed."
+        log_message "Server has been installed."
         set exit_code 0
     }
     "ERROR" {
-        puts stdout "\nError: Failed installing server.\r $expect_out"
+        log_message "Error: Failed installing server.\r $expect_out"
         set exit_code 1
     }
     timeout {
-        puts stdout "\nError: Timed out installing the server"
+        log_message "Error: Timed out installing the server"
         set exit_code 1
     }
 }
 
-puts stdout "\nClosing Telnet Connection"
+log_message "Closing Telnet Connection"
 close
 wait
 exit $exit_code
