@@ -20,6 +20,7 @@ ioc-instance:
 
     - name : SERVER_PROC_PORT
       value: '7002'
+
     - name : SERVER_PORT
       value: '8888'
 

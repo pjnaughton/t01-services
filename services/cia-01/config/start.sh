@@ -26,3 +26,4 @@ case "$FPGA_TYPE" in
 esac
 
 source ${IOC_DIR}/runioc $EXTRA_OPTS
+exit $?
