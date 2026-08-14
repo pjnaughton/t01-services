@@ -10,8 +10,6 @@ ioc-instance:
   imagePullPolicy: Always
 
   env:
-    - name: TYPE
-      value: d2dcc
     - name : FPGA_BIN_DIR
       value: /dls_sw/test.txt
 
@@ -19,7 +17,7 @@ ioc-instance:
       value: TS0001
 
     - name : SERVER_PROC_PORT
-      value: '7002'
+      value: '7001'
 
     - name : SERVER_PORT
       value: '8888'
@@ -27,6 +25,8 @@ ioc-instance:
     - name : D2DCC_DIR
       value: /epics/support/d2dcc
 
+    - name : K8S_IOC_PV
+      value: $$(NAME):STATE
 
   # mount in the beamline data folder
   # dataVolume:

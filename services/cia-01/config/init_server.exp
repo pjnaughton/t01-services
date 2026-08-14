@@ -11,6 +11,8 @@ set hostname $env(SERVER_HOSTNAME)
 set fpga_bin_dir $env(FPGA_BIN_DIR)
 set fpga_type $env(FPGA_TYPE)
 set fpga_type_number $env(FPGA_TYPE_NUMBER)
+set server_port $env(SERVER_PORT)
+set proc_port $env(SERVER_PROC_PORT)
 
 set installer_dir "/tmp"
 
@@ -133,7 +135,12 @@ expect {
         exit 1
     }
 }
-send  "echo \"export K8S_FPGA_TYPE=$fpga_type; export K8S_FPGA_TYPE_NUMBER=$fpga_type_number \" > /opt/server_env\r"
+send  "
+    echo \"export K8S_FPGA_TYPE=$fpga_type
+    export K8S_FPGA_TYPE_NUMBER=$fpga_type_number
+    export SERVER_PORT=$server_port
+    export PROC_PORT=$proc_port \" > /opt/server_env\r"
+
 expect {
     -re {.*#\s*} {
         puts stdout "\nenv file written to /opt/server_env"
