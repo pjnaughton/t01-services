@@ -25,9 +25,6 @@ ioc-instance:
     - name : D2DCC_DIR
       value: /epics/support/d2dcc
 
-    - name : K8S_IOC_PV
-      value: $$(NAME):STATE
-
   # mount in the beamline data folder
   # dataVolume:
   #   pvc: false
@@ -59,3 +56,4 @@ iocs:
     TELNET_PORT: 7030
     FPGA_TYPE: SIC_DPS
     FPGA_TYPE_NUMBER: 130
+    K8S_IOC_PV: "$(NAME):STATE"
