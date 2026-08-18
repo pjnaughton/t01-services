@@ -2,6 +2,14 @@
 
 This repository holds the a definition of t01 IOC Instances and services. Each sub folder of the `services` directory contains a helm chart for a specific service or IOC. The corresponding deployments repo can be found at [https://gitlab.diamond.ac.uk/controls/containers/beamline/t01-deployment].
 
+## Related Repositories
+
+[This repository](https://gitlab.diamond.ac.uk/controls/containers/accelerator/pc-services)
+
+[Generic IOC](https://gitlab.diamond.ac.uk/controls/containers/iocs/ioc-d2dcc)
+[IOC Implimentation](https://gitlab.diamond.ac.uk/controls/ioc/d2dcc-ioc/)
+[PC Deployment](https://gitlab.diamond.ac.uk/controls/containers/accelerator/pc-deployment)
+
 ## Using pre-commit hooks
 
 Pre commit hooks will validate the synoptic and additional soft support if present. To install pre-commit hooks run:
