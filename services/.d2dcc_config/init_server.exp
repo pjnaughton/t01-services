@@ -6,6 +6,8 @@ set d2dcc_dir $env(D2DCC_DIR)
 
 set telnet_server $env(TELNET_SERVER)
 set telnet_port $env(TELNET_PORT)
+
+# Will be changed to just use NAME
 set hostname $env(SERVER_HOSTNAME)
 
 set fpga_bin_dir $env(FPGA_BIN_DIR)
@@ -90,7 +92,6 @@ log_message "\n***** Transfer install files to Colibri via SCP"
 spawn scp \
     "-O" \
     "$d2dcc_dir/bin/linux-arm_elhf/installer_server.sh" \
-    "$fpga_bin_dir/$fpga_type.bin" \
     "root@$hostname:$installer_dir"
 
 # SHA Fingerprint Promt
