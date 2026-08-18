@@ -11,7 +11,7 @@ ioc-instance:
 
   env:
     - name : FPGA_BIN_DIR
-      value: /dls_sw/test.txt
+      value: /@volume_mount_dir@
 
     - name: TELNET_SERVER
       value: TS0001

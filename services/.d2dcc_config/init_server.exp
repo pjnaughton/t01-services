@@ -161,6 +161,8 @@ expect {
     }
 }
 
+# Need to move the fpga binary to /opt/bin/@fpga_bin_name@ before installing
+# Not done currently as the persistance volume/ mount is not setup for the binaries
 send "cd $installer_dir\r"
 send "./installer_server.sh -i\r"
 expect {
