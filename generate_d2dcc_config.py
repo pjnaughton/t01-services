@@ -1,3 +1,10 @@
+# /// script
+# requires-python = ">=3.14"
+# dependencies = [
+#     "fastexcel>=0.20.2",
+#     "polars>=1.43.2",
+# ]
+# ///
 import polars as pl
 import string
 import argparse
@@ -169,12 +176,15 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser(
         description="Writes the group ioc instances for the d2dcc iocs from "
         "the magnet spreadsheet.",
-        epilog="Hello World",
     )
     ap.add_argument("input-spreadsheet", type=str)
 
     args = vars(ap.parse_args(sys.argv[1:]))
 
+    spreadsheet = pl.read_excel(
+                args["input-spreadsheet"],
+                sheet_id=0,
+                has_header=False)
     top = Path(__file__).parents[0]
     services_dir = Path(top / "services")
 
@@ -182,15 +192,11 @@ if __name__ == "__main__":
     directories_seen = set()
 
     for page, column_config in RELEVANT_SHEETS.items():
-        df = (pl.read_excel(
-                    args["input-spreadsheet"],
-                    sheet_name=page,
-                    has_header=False)
+        df = (spreadsheet[page]
                 .slice(column_config.header_size)
                 .select(pl.nth(column_config.relevant_columns)))
         # filter out magnets by if they have a terminal server address and port
         df.columns = column_config.column_names
-        print(df)
         magnet_sive = [
             pl.col("Terminal Server").is_not_null(),
             pl.col("Terminal Port").is_not_null(),
