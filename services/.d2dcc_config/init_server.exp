@@ -89,6 +89,7 @@ wait
 
 
 log_message "\n***** Transfer install files to Colibri via SCP"
+# Need to transfer the FPGA binary 
 spawn scp \
     "-O" \
     "$d2dcc_dir/bin/linux-arm_elhf/installer_server.sh" \
@@ -139,8 +140,7 @@ expect {
 send  "
     echo \"export K8S_FPGA_TYPE=$fpga_type
     export K8S_FPGA_TYPE_NUMBER=$fpga_type_number
-    export SERVER_PORT=$server_port
-    export PROC_PORT=$proc_port \" > /opt/server_env\r"
+    export SERVER_PORT=$server_port\" > /opt/server_env\r"
 
 expect {
     -re {.*#\s*} {
