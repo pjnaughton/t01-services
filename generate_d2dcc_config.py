@@ -47,9 +47,6 @@ LINAC: PSI Controller card/SIC,
 BR: PSI Controller card/SIC,
 CIA: PSI Controller card/SIC/FRC
 
-NOTE:   I have put placeholders XX and XY as the columns of Terminal Server and
-        the terminal port. The order of the list needs to correspond to the order
-        of the column names.
 """
 
 @dataclass
@@ -80,6 +77,11 @@ def columns_to_index(cols):
 
     return [column_to_index(col) for col in cols]
 
+"""
+NOTE:   I have put placeholders XX and XY as the columns of Terminal Server and
+        the terminal port. The order of the column index list needs to correspond
+        to the order of the column names.
+"""
 
 LINAC_COLUMNS_OF_INTEREST = columns_to_index(["A", "XX", "XY", "AC"])
 LINAC_COLUMN_NAMES = [
