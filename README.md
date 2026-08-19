@@ -10,6 +10,21 @@ This repository holds the a definition of t01 IOC Instances and services. Each s
 [IOC Implimentation](https://gitlab.diamond.ac.uk/controls/ioc/d2dcc-ioc/)
 [PC Deployment](https://gitlab.diamond.ac.uk/controls/containers/accelerator/pc-deployment)
 
+## Generate Magnet IOC instances
+
+The information for each magnet and therefore IOC is defined in the magnet spreadsheet. If you do not have access ask someone with permissions to grant them. We use this spreadsheet for the configuration of our IOC's by setting environment variables in the relevant `values.yaml`.
+
+The script assumes certain things about the spreadsheet:
+- The relevant pages are `LINAC`, `BR<x> CIA` and `CIA <y>`, where 1 <= x <=4, 1 <= y <= 24 and 2 digits long e.g. 1 -> 01 
+- Each magnet which is desired to have an IOC has a `Terminal Server` and `Terminal Port` value, this is how the script determins which magnets to write an ioc entry for. 
+- The data (line of the first magnet) is on line: `Linac`- 3, `BR<x> CIA` - 4, `CIA <y>` - 7.  
+
+To generate the configuration:
+
+```bash
+uv run generate_d2dcc_config.py <path_to_magnet_spreadsheet.xlsx>
+```
+
 ## Using pre-commit hooks
 
 Pre commit hooks will validate the synoptic and additional soft support if present. To install pre-commit hooks run:

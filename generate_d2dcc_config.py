@@ -17,7 +17,8 @@ SIC_STRING = """
 
   - NAME: $magnet_name
     FPGA_TYPE: $fpga_type
-    FPGA_TYPE_NUMBER: $fpga_type_number"""
+    FPGA_TYPE_NUMBER: $fpga_type_number
+    TERMINAL_PORT: $terminal_port"""
 
 FRC_STRING = SIC_STRING + """
     MAGNET_ONE: $magnet_one
@@ -53,16 +54,20 @@ NOTE:   I have put placeholders XX and XY as the columns of Terminal Server and
 
 @dataclass
 class ColumnConfig:
-    header_size: int  # Number of columns until the data begins
-    # ( We dont mind removing column names here as they
-    # are renamed )
+    # Number of columns until the data begins
+    #   We dont mind removing column names here as they
+    #   are renamed by column_names
+    header_size: int  
 
-    relevant_columns: list  # Index (numeric) of the desired columns
-    # ( Needs to use index and not column name as the
+    # Index (numeric) of the desired columns
+    #   Needs to use index and not column name as the
     #   FOFB groupings share the header with PSI
-    #   Controller Type )
+    #   Controller Type 
+    relevant_columns: list  
 
-    column_names: list  # What to rename the columns
+    # What to rename the column in the dataframe 
+    #   same columns must be the same between pages 
+    column_names: list  
 
 
 def columns_to_index(cols):
@@ -151,6 +156,7 @@ def append_sic_devices(file, magnets: pl.DataFrame):
                 magnet_name=sic_data["Magnet ID"].lower(),
                 fpga_type="SIC_DPS",
                 fpga_type_number=parse_type_number(sic_data.get("PSU Type", 123)),
+                terminal_port=sic_data["Terminal Port"]
             )
         )
 
@@ -165,16 +171,20 @@ def append_frc_magnets(file, magnets: pl.DataFrame):
     for frc_index, frc_rows in frc_group:
 
         magnet_names = {}
+        terminal_ports = set()
         for magnet_index, frc_data in enumerate(frc_rows.iter_rows(named=True)):
             magnet_names[magnet_list[magnet_index]] = frc_data["Magnet ID"]
             frc_type = "FOFB" if frc_data["Is FOFB?"] else "SOFB"
+            terminal_ports.add(frc_data["Terminal Port"])
 
+        assert len(terminal_ports) == 1, "All FRC magnets must have the same terminal Port"
         file.write(f"\n# FRC: {int(frc_index[0])}")
         file.write(
             FRC_TEMPLATE.safe_substitute(
                 magnet_name=magnet_names["magnet_one"].lower(),
                 fpga_type=frc_type,
                 fpga_type_number=123,
+                terminal_port=terminal_ports.pop(),
                 **magnet_names,
             )
         )
@@ -192,9 +202,6 @@ if __name__ == "__main__":
     spreadsheet = pl.read_excel(args["input-spreadsheet"], sheet_id=0, has_header=False)
     top = Path(__file__).parents[0]
     services_dir = Path(top / "services")
-
-    # Don't clean directories which have been seen
-    directories_seen = set()
 
     for page, column_config in RELEVANT_SHEETS.items():
         df = (
@@ -216,11 +223,10 @@ if __name__ == "__main__":
         ts_groups = df.group_by(pl.col("Terminal Server"))
         for ts, magnet_controllers in ts_groups:
             terminal_server = ts[0]
-            if (
-                terminal_server is None
-                or (directory := services_dir / terminal_server) in directories_seen
-            ):
+            if terminal_server is None:
                 continue
+
+            directory = services_dir / str(terminal_server).lower()
 
             values_file = directory / "values.yaml"
             if not values_file.exists():
@@ -228,7 +234,6 @@ if __name__ == "__main__":
                 continue
 
             clean_file(values_file)
-            directories_seen.add(directory)
             with values_file.open("+a") as file:
                 append_sic_devices(file, magnet_controllers)
                 append_frc_magnets(file, magnet_controllers)
