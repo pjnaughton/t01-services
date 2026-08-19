@@ -16,7 +16,7 @@ case "$FPGA_TYPE" in
         IOC_DIR=${D2DCC_DIR}/dpsApp
         ;;
     SOFB | FOFB)
-        echo "Running FRC Start Script"
+        echo >&1 "Running FRC Start Script"
         IOC_DIR=${D2DCC_DIR}/frcApp
         ;;
     *)
