@@ -27,3 +27,5 @@ for pv in ${LIVENESS_PV[@]}; do
         echo "Liveness check failed for ${IOC_NAME}" > /proc/1/fd/1
         echo "Failing PV: ${pv}" > /proc/1/fd/2
         exit 1
+    fi
+done
