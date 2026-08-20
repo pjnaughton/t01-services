@@ -26,4 +26,7 @@ case "$FPGA_TYPE" in
 esac
 
 ${IOC_DIR}/runioc
+if [ $? != 0 ]; then
+    echo "Failure"
+fi
 exit $?
