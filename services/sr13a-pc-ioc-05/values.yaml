@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../.helm-shared/values.schema.json
+
+global:
+  location: sr13a
+
+dev-c7:
+  # prod #######################################################################
+  # To run a dls_sw/prod IOC only set iocVersion. This will launch from:
+  # /dls_sw/prod/$epicsVersion/ioc/$epicsDomain/$iocName/$iocVersion
+  # NOTE: for J branch on the same cluster as I see workingDir below
+  #
+  iocVersion: 1-0
+
+  # workingDir: /dls_sw/work/R3.14.12.7/ioc/SR13C/PC/SR13A-PC-IOC-04/iocs/SR13A-PC-IOC-04
+
+  #
+  # work #######################################################################
+  # To run a dls_sw/work IOC set iocPath and optionally override iocName
+  # e.g.
+  # iocPath: /dls_sw/work/R3.14.12.7/support/BL45P-BUILDER/iocs
+  # This will launche from:
+  # $iocPath/$iocName
+  #
+  # iocName: Defaults to ucase of service folder name
+  # setting iocPath overrides use of iocVersion, epicsDomain and epicsVersion
+
+  # arbitrary folder and entrypoint ############################################
+  # e.g.
+  # workingDir: /dls_sw/prod/python3/RHEL7-x86_64/feSequencers/1.1.4/src/iocs
+  # args:
+  #   - stdio-socket --ptty ./fe03i.sh
+
+  nodeSelector:
+    location: sr13c
+
+  tolerations:
+    - key: location
+      operator: Equal
+      value: sr13c
