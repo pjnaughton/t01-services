@@ -30,6 +30,12 @@ ioc-instance:
     # pvc: true
     # hostPath: /dls/ops-data/PowerSupplies
   
+  volumes:
+    - name: ops-data
+      nfs:
+        path: /dls/ops-data/PowerSupplies 
+        server: cs03r-sc-nas-svm02.diamond.ac.uk:/exports/dls/ops_data
+
   nodeSelector:
     nodetype: accelerator-ioc
 
