@@ -10,8 +10,8 @@ ioc-instance:
   imagePullPolicy: Always
 
   env:
-    - name : FPGA_BIN_DIR
-      value: /@volume_mount_dir@
+    - name : POWER_SUPPLIES_DIR
+      value: /dls/ops-data/PowerSupplies
 
     - name: TELNET_SERVER
       value: TS0001
@@ -38,6 +38,8 @@ ioc-instance:
        readOnly: true
 
   volumeMounts:
+  # This contains the firmware of the FPGA's at 
+  # /dls/ops-data/PowerSupplies/<slave>/firmware
    - name: ops-data
      mountPath: /dls/ops-data
 

@@ -10,7 +10,7 @@ set telnet_port $env(TELNET_PORT)
 # Will be changed to just use NAME
 set hostname $env(SERVER_HOSTNAME)
 
-set fpga_bin_dir $env(FPGA_BIN_DIR)
+set power_supplies_dir $env(POWER_SUPPLIES_DIR)
 set fpga_type $env(FPGA_TYPE)
 set fpga_type_number $env(FPGA_TYPE_NUMBER)
 set server_port $env(SERVER_PORT)
@@ -53,43 +53,40 @@ expect {
         exit 1
     }
 }
-send "configure-network -w -r $host_network $hostname\r"
+send "configure-network -w -r $host_network $hostname && echo SUCCESS || echo FAILURE\r"
 expect {
-    "Starting local mounts: " {
+    "SUCCESS" {
         expect -re {.*#\s*}
         log_message "Hostname configured to: $hostname"
+        log_message "Closing Telnet Connection"
+        close 
+        wait
     }
-    "Hostname '$hostname' not known for network $host_network" {
-        puts stdout "\nError: Bad hostname"
-        puts stdout "\nClosing Telnet Connection"
+    "FAILURE" {
+        log_message "ERROR: Failed to configure hostname $expect_out(buffer)"
+        log_message "Closing Telnet Connection"
         close
         wait
         exit 1
+    }{
     }
     timeout {
-        puts stdout "\nError: Timed out configuring the network."
-        puts stdout "\nClosing Telnet Connection"
+        log_message "ERROR: Timed out configuring the network."
+        log_message "Closing Telnet Connection"
         close
         wait
         exit 1
     }
     eof {
-        puts stdout "\nError: Failed to configure the network."
-        puts stdout "\nClosing Telnet Connection"
+        log_message "ERROR: Failed to configure the network."
+        log_message "Closing Telnet Connection"
         close
         wait
         exit 1
     }
 }
 
-log_message "Closing Telnet Connection"
-close
-wait
-
-
-
-log_message "\n***** Transfer install files to Colibri via SCP"
-# Need to transfer the FPGA binary 
+log_message "\n***** Transfer install script to Colibri via SCP"
 spawn scp \
     "-O" \
     "$d2dcc_dir/bin/linux-arm_elhf/installer_server.sh" \
@@ -107,8 +104,109 @@ expect "password" {
 }
 
 
-
 log_message "\n***** Set up environment and install the server *****"
+
+# Install the server but dont start the server as the FPGA binaries are not sent yet
+spawn ssh root@$hostname "cd $installer_dir; ./installer_server.sh -n && echo SUCCESS || echo FAILURE"
+expect { 
+    "password" {
+        send "root\r"
+        exp_continue
+    }
+    "SUCCESS" {
+        log_message "Server has been installed."
+    }
+    "FAILURE" {
+        log_message "Error: Failed installing server.\r $expect_out(buffer)"
+        exit 1
+    }
+    timeout {
+        log_message "Error: Timed out installing the server"
+        exit 1
+    }
+}
+
+# Need to get the FPGA versions from the colibri to copy the correct binary
+spawn ssh root@$hostname "/opt/bin/create_version_file && echo SUCCESS || echo FAILURE" 
+expect {
+    "password" {
+        send "root/r"
+        set data {}
+        foreach line [split $output "\n"] {
+            if {[regexp {^(\S+)\s+(.*)$} $line -> key value]} {
+                dict set data $key $value
+            }
+        }
+        exp_continue
+    }
+    "SUCCESS" {
+        set output $expect_out(buffer)
+        log_message "Version file created"
+    }
+    "FAILURE" {
+        log_message "ERROR: Failed to create version file $expect_out(buffer)"
+        exit 1
+    }
+}
+
+
+# Transfer the FPGA Binary
+set fpga_bin_paths []
+set fpga_bin {}
+
+### This needs to be changed!!!!!!!!!!!
+foreach fpga [split $fpga_type "_"]  {
+    if {$fpga==SIC} {
+        set sic_id [dict get $data SI]
+        set sic_mode [dict get $data SM]
+        set sic_bin "sic_${sic_id}_v{sic_mode}.bin" 
+        set file_path "${power_supplies_dir}/SIC/firmware/$sic_bin" 
+        if {[file exists $file_path]} {
+            lappend fpga_bin_paths $file_path
+            dict set fpga_bin $installer_dir/$sic_bin /opt/bin/sic.bin 
+        } else {
+            log_message "ERROR: file $file_path does not exist"
+            exit 1
+        }
+    } elseif {$fpga==DPS} {
+        set dps_id [dict get $data DI]
+        set dps_mode [dict get $data DM]
+        set dps_bin "dps_${dps_id}_v{dps_mode}.bin" 
+        set file_path "${power_supplies_dir}/DPS/firmware/$dps_bin"
+        if {[file exists $file_path]} {
+            lappend fpga_bin_paths $file_path
+            dict set fpga_bin $installer_dir/$dps_bin /opt/bin/dps.bin 
+        } else {
+            log_message "ERROR: file $file_path does not exist"
+            exit 1
+        }
+    } elseif {$fpga in [list FOFB SOFB]} {
+        log_message "ERROR: FRC binaries are not present yet"
+        exit 1
+    }
+}
+
+spawn scp \
+    "-O" \
+    {*}$fpga_bin_paths \
+    "root@$hostname:\tmp"
+
+expect "password" {
+    send "root\r"
+    expect eof
+    log_message "Files transfered to colibri"
+}
+
+log_message "\n Set environment and start the server"
+foreach {src dest} $fpga_bin {
+    spawn ssh root@$hostname "mv $src $dest"
+    expect "password" {
+        send "root\r"
+        expect eof
+        log_message "File $src moved to $dest"
+    }
+}
+
 spawn telnet $telnet_server $telnet_port
 expect {
     "Connected to $telnet_server" {
@@ -137,50 +235,18 @@ expect {
         exit 1
     }
 }
-send  "
-    echo \"export K8S_FPGA_TYPE=$fpga_type
-    export K8S_FPGA_TYPE_NUMBER=$fpga_type_number
-    export SERVER_PORT=$server_port\" > /opt/server_env\r"
-
+send "export EXPECTED_FPGA_TYPE=$fpga_type; export EXPECTED_FPGA_TYPE_NUMBER=$fpga_type_number\n"
+send "/opt/etc/init.d/begin_server start && echo SUCCESS || echo FAILURE"
 expect {
-    -re {.*#\s*} {
-        puts stdout "\nenv file written to /opt/server_env"
-    }
-    timeout {
-        puts stdout "\nError: Timed out writing env file"
-        puts stdout "\nClosing Telnet Connection"
-        close
-        wait
-        exit 1
-    }
-    eof {
-        puts stdout "\nError: Failed to write to env file"
-        puts stdout "\nClosing Telnet Connection"
-        close
-        wait
-        exit 1
-    }
-}
-
-# Need to move the fpga binary to /opt/bin/@fpga_bin_name@ before installing
-# Not done currently as the persistance volume/ mount is not setup for the binaries
-send "cd $installer_dir\r"
-send "./installer_server.sh -i\r"
-expect {
-    "ok." {
-        log_message "Server has been installed."
+    "SUCCESS" {
+        log_message "Server started"
         set exit_code 0
     }
-    "ERROR" {
-        log_message "Error: Failed installing server.\r $expect_out"
-        set exit_code 1
-    }
-    timeout {
-        log_message "Error: Timed out installing the server"
+    "FAILURE" {
+        log_message "ERROR: Failed to start server $expect_out(buffer)"
         set exit_code 1
     }
 }
-
 log_message "Closing Telnet Connection"
 close
 wait
