@@ -27,7 +27,7 @@ ioc-instance:
 
   # mount in the beamline data folder
   dataVolume:
-    pvc: false
+    pvc: true
     hostPath: /dls/ops-data/PowerSupplies
   
   nodeSelector:
