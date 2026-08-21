@@ -11,7 +11,7 @@ ioc-instance:
 
   env:
     - name : FPGA_BIN_DIR
-      value: /@volume_mount_dir@
+      value: /dls/ops-data/PowerSuppies
 
     - name: TELNET_SERVER
       value: TS0001
@@ -29,17 +29,17 @@ ioc-instance:
   # dataVolume:
     # pvc: true
     # hostPath: /dls/ops-data/PowerSupplies
-  
-  #volumes:
-  #  - name: ops-data
-  #    nfs:
-  #      path: /exports/dls/ops_data
-  #      server: cs03r-sc-nas-svm02.diamond.ac.uk
-  #      readOnly: true
-#
-  #volumeMounts:
-  #  - name: ops-data
-  #    mountPath: /dls/ops-data
+
+  volumes:
+   - name: ops-data
+     nfs:
+       path: /exports/dls/ops_data
+       server: cs03r-sc-nas-svm02.diamond.ac.uk
+       readOnly: true
+
+  volumeMounts:
+   - name: ops-data
+     mountPath: /dls/ops-data
 
   nodeSelector:
     nodetype: accelerator-ioc
