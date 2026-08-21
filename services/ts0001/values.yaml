@@ -26,9 +26,9 @@ ioc-instance:
       value: /epics/support/d2dcc
 
   # mount in the beamline data folder
-  dataVolume:
-    pvc: true
-    hostPath: /dls/ops-data/PowerSupplies
+  # dataVolume:
+    # pvc: true
+    # hostPath: /dls/ops-data/PowerSupplies
   
   nodeSelector:
     nodetype: accelerator-ioc
