@@ -53,40 +53,38 @@ expect {
         exit 1
     }
 }
-send "configure-network -w -r $host_network $hostname\r"
+
+send "configure-network -w -r $host_network $hostname && echo SUCCESS || echo FAILURE\r"
 expect {
-    "Starting local mounts: " {
+    "SUCCESS" {
         expect -re {.*#\s*}
         log_message "Hostname configured to: $hostname"
+        log_message "Closing Telnet Connection"
+        close
+        wait
     }
-    "Hostname '$hostname' not known for network $host_network" {
-        puts stdout "\nError: Bad hostname"
-        puts stdout "\nClosing Telnet Connection"
+    "FAILURE" {
+        log_message "ERROR: Failed to configure hostname $expect_out(buffer)"
+        log_message "Closing Telnet Connection"
         close
         wait
         exit 1
     }
     timeout {
-        puts stdout "\nError: Timed out configuring the network."
-        puts stdout "\nClosing Telnet Connection"
+        log_message "ERROR: Timed out configuring the network."
+        log_message "Closing Telnet Connection"
         close
         wait
         exit 1
     }
     eof {
-        puts stdout "\nError: Failed to configure the network."
-        puts stdout "\nClosing Telnet Connection"
+        log_message "ERROR: Failed to configure the network."
+        log_message "Closing Telnet Connection"
         close
         wait
         exit 1
     }
 }
-
-log_message "Closing Telnet Connection"
-close
-wait
-
-
 
 log_message "\n***** Transfer install files to Colibri via SCP"
 # Need to transfer the FPGA binary
@@ -107,71 +105,27 @@ expect "password" {
 }
 
 
-
 log_message "\n***** Set up environment and install the server *****"
-spawn telnet $telnet_server $telnet_port
-expect {
-    "Connected to $telnet_server" {
-        send "\n\r"
-        expect -re {.*#\s*}
-    }
-    "Connection closed by foreign host." {
-        log_message "Error: $telnet_server:$telnet_port refused the connection"
-        log_message "Closing Telnet Connection"
-        close
-        wait
-        exit 1
-    }
-    timeout {
-        log_message "Error: Timed out trying to connect to $telnet_server:$telnet_port."
-        log_message "Closing Telnet Connection"
-        close
-        wait
-        exit 1
-    }
-    eof {
-        log_message "Error: Failed to connect to $telnet_server:$telnet_port."
-        log_message "Closing Telnet Connection"
-        close
-        wait
-        exit 1
-    }
-}
-send  "
+spawn ssh root@$hostname "
     echo \"export K8S_FPGA_TYPE=$fpga_type
     export K8S_FPGA_TYPE_NUMBER=$fpga_type_number
-    export SERVER_PORT=$server_port\" > /opt/server_env\r"
-
-expect {
-    -re {.*#\s*} {
-        puts stdout "\nenv file written to /opt/server_env"
-    }
-    timeout {
-        puts stdout "\nError: Timed out writing env file"
-        puts stdout "\nClosing Telnet Connection"
-        close
-        wait
-        exit 1
-    }
-    eof {
-        puts stdout "\nError: Failed to write to env file"
-        puts stdout "\nClosing Telnet Connection"
-        close
-        wait
-        exit 1
-    }
+    export SERVER_PORT=$server_port\" > /opt/server_env"
+expect "password" {
+    send "root\r"
 }
 
-# Need to move the fpga binary to /opt/bin/@fpga_bin_name@ before installing
-send "cd $installer_dir\r"
-send "./installer_server.sh -i\r"
+spawn ssh root@$hostname "source /opt/server_env; cd $installer_dir; ./installer_server.sh -i && echo SUCCESS || echo FAILURE"
 expect {
-    "ok." {
+    "password" {
+        send "root\r"
+        exp_continue
+    }
+    "SUCCESS" {
         log_message "Server has been installed."
         set exit_code 0
     }
-    "ERROR" {
-        log_message "Error: Failed installing server.\r $expect_out"
+    "FAILURE" {
+        log_message "Error: Failed installing server. $expect_out(buffer)"
         set exit_code 1
     }
     timeout {
@@ -180,7 +134,4 @@ expect {
     }
 }
 
-log_message "Closing Telnet Connection"
-close
-wait
 exit $exit_code
