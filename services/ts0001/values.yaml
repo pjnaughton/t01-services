@@ -11,7 +11,7 @@ ioc-instance:
 
   env:
     - name : FPGA_BIN_DIR
-      value: /dls/ops-data/PowerSuppies
+      value: /dls/science/users/ygn40972/power-supplies
 
     - name: TELNET_SERVER
       value: TS0001
@@ -25,21 +25,16 @@ ioc-instance:
     - name : D2DCC_DIR
       value: /epics/support/d2dcc
 
-  # mount in the beamline data folder
-  # dataVolume:
-    # pvc: true
-    # hostPath: /dls/ops-data/PowerSupplies
-
   volumes:
-   - name: ops-data
+   - name: dls_science
      nfs:
-       path: /exports/dls/ops_data
-       server: cs03r-sc-nas-svm02.diamond.ac.uk
+       path: /vol/science
+       server: cs04r-nas01-02.diamond.ac.uk
        readOnly: true
 
   volumeMounts:
-   - name: ops-data
-     mountPath: /dls/ops-data
+   - name: dls_science
+     mountPath: /dls/science
 
   nodeSelector:
     nodetype: accelerator-ioc

@@ -54,17 +54,17 @@ class ColumnConfig:
     # Number of columns until the data begins
     #   We dont mind removing column names here as they
     #   are renamed by column_names
-    header_size: int  
+    header_size: int
 
     # Index (numeric) of the desired columns
     #   Needs to use index and not column name as the
     #   FOFB groupings share the header with PSI
-    #   Controller Type 
-    relevant_columns: list  
+    #   Controller Type
+    relevant_columns: list
 
-    # What to rename the column in the dataframe 
-    #   same columns must be the same between pages 
-    column_names: list  
+    # What to rename the column in the dataframe
+    #   same columns must be the same between pages
+    column_names: list
 
 
 def columns_to_index(cols):
@@ -198,7 +198,6 @@ if __name__ == "__main__":
         "the magnet spreadsheet.",
     )
     ap.add_argument("input-spreadsheet", type=str)
-
     args = vars(ap.parse_args(sys.argv[1:]))
 
     spreadsheet = pl.read_excel(args["input-spreadsheet"], sheet_id=0, has_header=False)
