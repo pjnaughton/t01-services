@@ -74,13 +74,6 @@ expect {
         wait
         exit 1
     }
-    eof {
-        log_message "ERROR: Failed to configure the network."
-        log_message "Closing Telnet Connection"
-        close
-        wait
-        exit 1
-    }
 }
 
 log_message "\n***** Transfer install files to Colibri via SCP"
@@ -105,8 +98,7 @@ expect "password" {
 log_message "\n***** Set up environment and install the server *****"
 spawn ssh root@$hostname "
     echo \"export K8S_FPGA_TYPE=$fpga_type
-    export K8S_FPGA_TYPE_NUMBER=$fpga_type_number
-    export SERVER_PORT=$server_port\" > /opt/server_env"
+    export K8S_FPGA_TYPE_NUMBER=$fpga_type_number\" > /opt/server_env"
 expect "password" {
     send "root\r"
 }

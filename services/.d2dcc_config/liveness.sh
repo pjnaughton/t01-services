@@ -7,12 +7,12 @@ set -ex
 
 case "$FPGA_TYPE" in
     SIC_DPS)
-        LIVENESS_PV=( "${NAME}:STATE")
+        LIVENESS_PV=( "${NAME}:STATE" )
         ;;
     SOFB | FOFB)
         for MAGNET_NAME in "MAGNET_ONE" "MAGNET_TWO" "MAGNET_THREE" "MAGNET_FOUR"; do
             if [[ ! -z "${!MAGNET_NAME}" ]]; then
-                LIVENESS_PV+=( "${!MAGNET_NAME}:STATE")
+                LIVENESS_PV+=( "${!MAGNET_NAME}:STATE" )
             fi
         done
         ;;
