@@ -18,14 +18,14 @@ ioc-instance:
       value: /epics/support/d2dcc
 
   volumes:
-   - name: dls_science
+   - name: dls-science
      nfs:
        path: /vol/science
        server: cs04r-nas01-02.diamond.ac.uk
        readOnly: true
 
   volumeMounts:
-   - name: dls_science
+   - name: dls-science
      mountPath: /dls/science
 
   nodeSelector:
