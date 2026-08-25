@@ -51,5 +51,5 @@ iocs:
 
   - NAME: colibri30
     TELNET_PORT: 7030
-    FPGA_TYPE: SIC_DP
+    FPGA_TYPE: SIC_DPS
     FPGA_TYPE_NUMBER: 130

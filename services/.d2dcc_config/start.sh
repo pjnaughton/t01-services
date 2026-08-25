@@ -4,9 +4,6 @@ set -e
 #  Start the server ############################################################
 
 expect ${CONFIG_DIR}/init_server.exp
-if [ $? != 0 ]; then
-    exit 1
-fi
 
 # Start Soft IOC ###############################################################
 
@@ -20,13 +17,10 @@ case "$FPGA_TYPE" in
         IOC_DIR=${D2DCC_DIR}/frcApp
         ;;
     *)
-        echo "Invalid FPGA Name $FPGA_TYPE"
+        echo "Invalid FPGA Name: $FPGA_TYPE"
         exit 1
         ;;
 esac
 
 ${IOC_DIR}/runioc
-if [ $? != 0 ]; then
-    echo >&1 "Failure"
-fi
-exit $?
+
