@@ -14,11 +14,11 @@ from dataclasses import dataclass
 import sys
 
 SIC_STRING = """
-
   - NAME: $magnet_name
     FPGA_TYPE: $fpga_type
     FPGA_TYPE_NUMBER: $fpga_type_number
-    TERMINAL_PORT: $terminal_port"""
+    TERMINAL_PORT: $terminal_port
+"""
 
 SIC_TEMPLATE = string.Template(SIC_STRING)
 
@@ -77,7 +77,7 @@ NOTE:   I have put placeholders XX and XY as the columns of Terminal Server and
         to the order of the column names.
 """
 
-LINAC_COLUMNS_OF_INTEREST = columns_to_index(["A", "XX", "XY", "AC"])
+LINAC_COLUMNS_OF_INTEREST = columns_to_index(["A", "AL", "AM", "AC"])
 LINAC_COLUMN_NAMES = [
     "Magnet ID",
     "Terminal Server",
@@ -86,7 +86,7 @@ LINAC_COLUMN_NAMES = [
 ]
 LINAC_COLUMN_CONFIG = ColumnConfig(2, LINAC_COLUMNS_OF_INTEREST, LINAC_COLUMN_NAMES)
 
-BOOSTER_COLUMNS_OF_INTEREST = columns_to_index(["A", "XX", "XY", "BA", "BB", "BD"])
+BOOSTER_COLUMNS_OF_INTEREST = columns_to_index(["A", "BL", "BM", "BA", "BB", "BD"])
 BOOSTER_COLUMN_NAMES = [
     "Magnet ID",
     "Terminal Server",
@@ -174,16 +174,17 @@ def append_frc_magnets(file, magnets: pl.DataFrame):
 
     magnet_list = ["MAGNET_ONE", "MAGNET_TWO", "MAGNET_THREE", "MAGNET_FOUR"]
     for frc_index, frc_rows in frc_group:
-
         # We continuesly append to this string to add the magnet names
         magnet_string = ""
         terminal_ports = set()
         frc_types = set()
+
         for magnet_index, frc_data in enumerate(frc_rows.iter_rows(named=True)):
             magnet_id = frc_data["Magnet ID"]
             if magnet_index == 0:
                 frc_name = magnet_id
-            magnet_string += f"{magnet_list[magnet_index]}: {magnet_id}\n"
+            # The indentation is important here
+            magnet_string += f"    {magnet_list[magnet_index]}: {magnet_id}\n"
             frc_type = "FOFB" if frc_data["Is FOFB?"] else "SOFB"
             frc_types.add(frc_type)
             terminal_ports.add(frc_data["Terminal Port"])
@@ -192,6 +193,7 @@ def append_frc_magnets(file, magnets: pl.DataFrame):
         assert (
             len(terminal_ports) == 1
         ), "All FRC magnets must have the same terminal Port"
+        
         file.write(f"\n# FRC: {int(frc_index[0])}")
         file.write(
             SIC_TEMPLATE.substitute(
