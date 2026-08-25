@@ -41,6 +41,7 @@ CIA: PSI Controller card/SIC/FRC
 
 """
 
+
 @dataclass
 class ColumnConfig:
     # Number of columns until the data begins
@@ -69,6 +70,7 @@ def columns_to_index(cols):
 
     return [column_to_index(col) for col in cols]
 
+
 """
 NOTE:   I have put placeholders XX and XY as the columns of Terminal Server and
         the terminal port. The order of the column index list needs to correspond
@@ -82,8 +84,7 @@ LINAC_COLUMN_NAMES = [
     "Terminal Port",
     "PSI Controller",
 ]
-LINAC_COLUMN_CONFIG = ColumnConfig(
-    2, LINAC_COLUMNS_OF_INTEREST, LINAC_COLUMN_NAMES)
+LINAC_COLUMN_CONFIG = ColumnConfig(2, LINAC_COLUMNS_OF_INTEREST, LINAC_COLUMN_NAMES)
 
 BOOSTER_COLUMNS_OF_INTEREST = columns_to_index(["A", "XX", "XY", "BA", "BB", "BD"])
 BOOSTER_COLUMN_NAMES = [
@@ -113,7 +114,13 @@ CIA_COLUMN_CONFIG = ColumnConfig(5, CIA_COLUMNS_OF_INTEREST, CIA_COLUMN_NAMES)
 
 NUM_CIAS = 24
 NUM_BOOSTERS = 4
-RELEVANT_SHEETS = {
+
+LINAC_SHEET = [3]
+BOOSTER_SHEETS = [i for i in range(4, NUM_BOOSTERS + 4)]
+CIA_SHEETS = [i for i in range(11, NUM_CIAS + 11)]
+RELEVANT_SHEETS = LINAC_SHEET + BOOSTER_SHEETS + CIA_SHEETS
+
+SHEET_CONFIG = {
     "LINAC": LINAC_COLUMN_CONFIG,
     **{f"BR{i:02d} CIA": BOOSTER_COLUMN_CONFIG for i in range(1, NUM_BOOSTERS + 1)},
     **{f"CIA {i:02d}": CIA_COLUMN_CONFIG for i in range(1, NUM_CIAS + 1)},
@@ -152,7 +159,7 @@ def append_sic_devices(file, magnets: pl.DataFrame):
                 magnet_name=sic_data["Magnet ID"].lower(),
                 fpga_type="SIC_DPS",
                 fpga_type_number=parse_type_number(sic_data.get("PSU Type", 123)),
-                terminal_port=sic_data["Terminal Port"]
+                terminal_port=sic_data["Terminal Port"],
             )
         )
 
@@ -182,7 +189,9 @@ def append_frc_magnets(file, magnets: pl.DataFrame):
             terminal_ports.add(frc_data["Terminal Port"])
 
         assert len(frc_types) == 1, "All FRC Magnets must be the same type"
-        assert len(terminal_ports) == 1, "All FRC magnets must have the same terminal Port"
+        assert (
+            len(terminal_ports) == 1
+        ), "All FRC magnets must have the same terminal Port"
         file.write(f"\n# FRC: {int(frc_index[0])}")
         file.write(
             SIC_TEMPLATE.substitute(
@@ -190,7 +199,8 @@ def append_frc_magnets(file, magnets: pl.DataFrame):
                 fpga_type=frc_type,
                 fpga_type_number=123,
                 terminal_port=terminal_ports.pop(),
-            ) + magnet_string
+            )
+            + magnet_string
         )
 
 
@@ -200,22 +210,24 @@ if __name__ == "__main__":
         "the magnet spreadsheet.",
     )
     ap.add_argument("input-spreadsheet", type=str)
+    ap.add_argument(
+        "--terminal-servers", nargs="*", dest="terminal_servers", default=[]
+    )
+
     args = vars(ap.parse_args(sys.argv[1:]))
 
-    spreadsheet = pl.read_excel(args["input-spreadsheet"],
-                                          sheet_id=0,
-                                          has_header=True,
-                                          drop_empty_cols=False,
-                                          drop_empty_rows=False)
+    wanted_terminal_servers = args["terminal_servers"]
+    spreadsheet = pl.read_excel(
+        args["input-spreadsheet"], sheet_id=RELEVANT_SHEETS, has_header=True
+    )
+
     top = Path(__file__).parents[0]
     services_dir = Path(top / "services")
 
-    for page, column_config in RELEVANT_SHEETS.items():
-        df = (
-            spreadsheet[page]
-            .slice(column_config.header_size)
-            .select(pl.nth(column_config.relevant_columns))
-        )
+    for page_name, column_config in SHEET_CONFIG.items():
+        df = pl.DataFrame(
+            spreadsheet[page_name].slice(column_config.header_size)
+        ).select(pl.nth(column_config.relevant_columns))
         # filter out magnets by if they have a terminal server address and port
         df.columns = column_config.column_names
         magnet_sive = [
@@ -224,13 +236,19 @@ if __name__ == "__main__":
         ]
         cleaned_df = df.filter(magnet_sive)
         if len(cleaned_df) == 0:
-            print(f"{page}: No magnets with Terminal server and port")
+            print(f"{page_name}: No magnets with Terminal server and port")
             continue
 
         ts_groups = df.group_by(pl.col("Terminal Server"))
         for ts, magnet_controllers in ts_groups:
             terminal_server = ts[0]
             if terminal_server is None:
+                continue
+
+            if (
+                wanted_terminal_servers
+                and terminal_server not in wanted_terminal_servers
+            ):
                 continue
 
             directory = services_dir / str(terminal_server).lower()
