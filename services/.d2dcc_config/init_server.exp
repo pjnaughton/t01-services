@@ -31,22 +31,16 @@ expect {
     "Connection closed by foreign host." {
         log_message "Error: $telnet_server:$telnet_port refused the connection"
         log_message "Closing Telnet Connection"
-        close
-        wait
         exit 1
     }
     timeout {
         log_message "Error: Timed out trying to connect to $telnet_server:$telnet_port."
         log_message "Closing Telnet Connection"
-        close
-        wait
         exit 1
     }
     eof {
         log_message "Error: Failed to connect to $telnet_server:$telnet_port."
         log_message "Closing Telnet Connection"
-        close
-        wait
         exit 1
     }
 }
