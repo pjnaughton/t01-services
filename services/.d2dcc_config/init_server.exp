@@ -96,8 +96,6 @@ expect {
     }
 }
 
-
-
 log_message "\n***** Set up environment and install the server *****"
 spawn ssh root@$hostname "
     echo \"export K8S_FPGA_TYPE=$fpga_type

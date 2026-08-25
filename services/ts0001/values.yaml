@@ -15,7 +15,7 @@ ioc-instance:
     - name: TELNET_SERVER
       value: TS0001
     - name : D2DCC_DIR
-      value: /epics/support/d2d
+      value: /epics/support/d2dcc
 
   volumes:
    - name: dls-science
