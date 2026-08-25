@@ -13,7 +13,7 @@ ioc-instance:
     - name : FPGA_BIN_DIR
       value: /dls/science/users/ygn40972/power-supplies
     - name: TELNET_SERVER
-      value: TS0001
+      value: TS000
     - name : D2DCC_DIR
       value: /epics/support/d2dcc
 
