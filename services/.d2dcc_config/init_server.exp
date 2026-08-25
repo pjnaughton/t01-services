@@ -77,16 +77,25 @@ spawn scp \
     "$d2dcc_dir/bin/linux-arm_elhf/installer_server.sh" \
     "root@$hostname:$installer_dir"
 
-# SHA Fingerprint Promt
-expect "yes/no" {
-    send "yes\r"
+expect {
+    # SHA Fingerprint Promt
+    "yes/no" {
+        send "yes\r"
+        exp_continue
+    }
+    "password" {
+        send "root\r"
+        exp_continue
+    }
+    "100%" {
+        log_message "Files transferred to colibri"
+    }
+    "No such file or directory" {
+        log_message "Error: file not found"
+        exit 1
+    }
 }
 
-expect "password" {
-    send "root\r"
-    expect eof
-    log_message "Files transfered to colibri"
-}
 
 
 log_message "\n***** Set up environment and install the server *****"
@@ -97,7 +106,7 @@ expect "password" {
     send "root\r"
 }
 
-spawn ssh root@$hostname "source /opt/server_env; cd $installer_dir; ./installer_server.sh -i && echo SUCCESS || echo FAILURE"
+spawn ssh root@$hostname "cd $installer_dir; ./installer_server.sh -i && echo SUCCESS || echo FAILURE"
 expect {
     "password" {
         send "root\r"
