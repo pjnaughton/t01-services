@@ -8,6 +8,7 @@ set telnet_server $env(TELNET_SERVER)
 set telnet_port $env(TELNET_PORT)
 
 set hostname $env(NAME)
+set log_file $env(SERVER_LOG_FILE)
 
 set fpga_bin_dir $env(FPGA_BIN_DIR)
 set fpga_type $env(FPGA_TYPE)
@@ -78,7 +79,7 @@ spawn scp \
     "root@$hostname:$installer_dir"
 
 expect {
-    # SHA Fingerprint Promt
+    # SHA Fingerprint Prompt
     "yes/no" {
         send "yes\r"
         exp_continue
@@ -98,8 +99,10 @@ expect {
 
 log_message "\n***** Set up environment and install the server *****"
 spawn ssh root@$hostname "
-    echo \"export K8S_FPGA_TYPE=$fpga_type
-    export K8S_FPGA_TYPE_NUMBER=$fpga_type_number\" > /opt/server_env"
+echo \"export K8S_FPGA_TYPE=$fpga_type
+export K8S_FPGA_TYPE_NUMBER=$fpga_type_number
+export LOG_FILE=$log_file" > /opt/server_env"
+
 expect "password" {
     send "root\r"
 }

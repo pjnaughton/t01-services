@@ -1,8 +1,4 @@
 #!/bin/bash
-TOP=/epics/ioc
-cd ${TOP}
-CONFIG_DIR=${TOP}/config
-
 set -ex
 
 case "$FPGA_TYPE" in
