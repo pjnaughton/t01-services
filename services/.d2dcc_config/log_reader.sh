@@ -4,6 +4,8 @@ set -uo pipefail
 
 mkdir -p /data/$NAME
 LOG_STORE=/data/$NAME/server.log
+touch $LOG_STORE
+
 PID_FILE=/var/run/server.pid
 
 exec_ssh_command() {
@@ -29,7 +31,7 @@ EOF
 
 copy_file() {
     local line_prev_copied=$(($(cat $LOG_STORE | wc -l) + 1))
-    local output=$(exec_ssh_command "tail -n +$line_prev_copied $LOG_FILE")
+    local output=$(exec_ssh_command "tail -n +$line_prev_copied $SERVER_LOG_FILE")
     local result=$?
     if [ $result -ne 0 ]; then
         echo "Failed to read log file"

@@ -22,6 +22,6 @@ case "$FPGA_TYPE" in
         ;;
 esac
 
-log_reader &
+${CONFIG_DIR}/log_reader.sh &
 ${IOC_DIR}/runioc
 
