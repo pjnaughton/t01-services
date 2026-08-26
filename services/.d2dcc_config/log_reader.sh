@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -uo pipefail
-
 mkdir -p /data/$NAME
 LOG_STORE=/data/$NAME/server.log
 touch $LOG_STORE
@@ -11,7 +9,7 @@ PID_FILE=/var/run/server.pid
 exec_ssh_command() {
     local hostname=$NAME
     local command="$1"
-    # We want to skip the lines for ssh password
+    # Skip the lines for expect lines
     expect << EOF | tr -d '\r' | tail -n +3
         set timeout 10
         spawn ssh root@$hostname "${command}"
@@ -30,6 +28,7 @@ EOF
 }
 
 copy_file() {
+    # Only read the lines not previously read
     local line_prev_copied=$(($(cat $LOG_STORE | wc -l) + 1))
     local output=$(exec_ssh_command "tail -n +$line_prev_copied $SERVER_LOG_FILE")
     local result=$?
@@ -39,7 +38,7 @@ copy_file() {
         # Don't append if there is nothing new in the logfile
         # Will append a newline to local logfile
         [[ -n ${output} ]] && 
-            echo "$output" | tr '\r' ' ' >> $LOG_STORE
+            echo "$output" >> $LOG_STORE
     fi
     return $result
 }
