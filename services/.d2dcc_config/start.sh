@@ -4,7 +4,10 @@ set -e
 #  Create SSH authorisation key for the colibri ################################
 
 mkdir -p ${HOME}/.ssh
-ssh-keygen -t rsa -N "" -f ${HOME}/.ssh/id_${NAME}
+SSH_KEY=${HOME}/.ssh/id_${NAME}
+eval "$(ssh-agent -s)"
+ssh-keygen -t rsa -N "" -f $SSH_KEY
+ssh-add $SSH_KEY
 
 #  Configure Hostname and set up SSH Authorisation #############################
 
@@ -21,7 +24,7 @@ scp -O ${SSH_OPTION} ${D2DCC_DIR}/bin/linux-arm_elhf/installer_server.sh \
 ssh ${SSH_OPTION} root@$NAME "
 echo \"export K8S_FPGA_TYPE=$FPGA_TYPE
 export K8S_FPGA_TYPE_NUMBER=$FPGA_TYPE_NUMBER
-export LOG_FILE=$SERVER_LOG_FILE\" > /opt/server_env"
+export LOG_FILE=$SERVER_LOG_FILE\" > /opt/server/server_env"
 
 ssh ${SSH_OPTION} root@$NAME "cd $installer_dir; ./installer_server.sh -i"
 
