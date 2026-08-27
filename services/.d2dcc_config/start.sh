@@ -23,7 +23,7 @@ scp -O $SSH_OPTION ${D2DCC_DIR}/bin/linux-arm_elhf/installer_server.sh \
 
 
 # We must create the environment file after the installer script as it will
-# otherwise get deleted. 
+# otherwise get deleted.
 ssh $SSH_OPTION root@$NAME "cd $installer_dir; ./installer_server.sh -n"
 
 ssh $SSH_OPTION root@$NAME "touch $SERVER_LOG_FILE"
@@ -38,7 +38,7 @@ ssh $SSH_OPTION root@$NAME "/opt/etc/init.d/tcpserver start"
 
 case "$FPGA_TYPE" in
     SIC_DPS)
-        echo >&1 "Running DPS Start Script"
+        echo >&1 "Running DPS Start Script" 
         IOC_DIR=${D2DCC_DIR}/dpsApp
         ;;
     SOFB | FOFB)
