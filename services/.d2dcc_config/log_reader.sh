@@ -37,7 +37,7 @@ copy_file() {
     else
         # Don't append if there is nothing new in the logfile
         # Will append a newline to local logfile
-        [[ -n ${output} ]] && 
+        [[ -n ${output} ]] &&
             echo "$output" >> $LOG_STORE
     fi
     return $result
@@ -60,8 +60,5 @@ until (( fail_count > 5 )); do
     sleep 20
 done
 
-echo "Server not running" >&2
+echo "Log Reader failed" >&2
 exit 1
-
-
-     

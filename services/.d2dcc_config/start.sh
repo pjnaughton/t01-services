@@ -1,9 +1,26 @@
 #!/bin/bash
 set -e
 
-#  Start the server ############################################################
+#  Create SSH authorisation key for the colibri ################################
+
+ssh-keygen -t rsa -N "" -f ~/id_${NAME}
+
+#  Configure Hostname and set up SSH Authorisation #############################
 
 expect ${CONFIG_DIR}/init_server.exp
+
+# Transfer Relevant files and start the server
+
+installer_dir=/tmp
+scp "-O" "${D2DCC_DIR}/bin/linux-arm_elhf/installer_server.sh" \
+    root@$NAME:$installer_dir
+
+ssh root@$NAME "
+echo \"export K8S_FPGA_TYPE=$FPGA_TYPE
+export K8S_FPGA_TYPE_NUMBER=$FPGA_TYPE_NUMBER
+export LOG_FILE=$SERVER_LOG_FILE\" > /opt/server_env"
+
+ssh root@$NAME "cd $installer_dir; ./installer_server.sh -i"
 
 # Start Soft IOC ###############################################################
 
@@ -22,6 +39,4 @@ case "$FPGA_TYPE" in
         ;;
 esac
 
-source ${CONFIG_DIR}/log_reader.sh &
-${IOC_DIR}/runioc
-
+(trap 'kill 0' SIGINT; source ${CONFIG_DIR}/log_reader.sh & ${IOC_DIR}/runioc)

@@ -2,19 +2,10 @@
 
 set timeout 30
 
-set d2dcc_dir $env(D2DCC_DIR)
-
 set telnet_server $env(TELNET_SERVER)
 set telnet_port $env(TELNET_PORT)
 
 set hostname $env(NAME)
-set log_file $env(SERVER_LOG_FILE)
-
-set fpga_bin_dir $env(FPGA_BIN_DIR)
-set fpga_type $env(FPGA_TYPE)
-set fpga_type_number $env(FPGA_TYPE_NUMBER)
-
-set installer_dir "/tmp"
 
 set host_network "dev"
 
@@ -52,8 +43,6 @@ expect {
         expect -re {.*#\s*}
         log_message "Hostname configured to: $hostname"
         log_message "Closing Telnet Connection"
-        close
-        wait
     }
     "FAILURE" {
         log_message "ERROR: Failed to configure hostname $expect_out(buffer)"
@@ -71,60 +60,20 @@ expect {
     }
 }
 
-log_message "\n***** Transfer install files to Colibri via SCP"
+# Delete any old ssh keys
+send "rm -f /root/.ssh/authorized_keys"
+close
+wait
+
+log_message "\n***** Transfer SSH Authorisationkey to colibri"
 # Need to transfer the FPGA binary
-spawn scp \
-    "-O" \
-    "$d2dcc_dir/bin/linux-arm_elhf/installer_server.sh" \
-    "root@$hostname:$installer_dir"
-
-expect {
-    # SHA Fingerprint Prompt
-    "yes/no" {
-        send "yes\r"
-        exp_continue
-    }
-    "password" {
-        send "root\r"
-        exp_continue
-    }
-    "100%" {
-        log_message "Files transferred to colibri"
-    }
-    "No such file or directory" {
-        log_message "Error: file not found"
-        exit 1
-    }
-}
-
-log_message "\n***** Set up environment and install the server *****"
-spawn ssh root@$hostname "
-echo \"export K8S_FPGA_TYPE=$fpga_type
-export K8S_FPGA_TYPE_NUMBER=$fpga_type_number
-export LOG_FILE=$log_file" > /opt/server_env"
-
-expect "password" {
-    send "root\r"
-}
-
-spawn ssh root@$hostname "cd $installer_dir; ./installer_server.sh -i && echo SUCCESS || echo FAILURE"
+spawn ssh-copy-id -i ~/id_${hostname}.pub root@$hostname
 expect {
     "password" {
         send "root\r"
         exp_continue
     }
-    "SUCCESS" {
-        log_message "Server has been installed."
-        set exit_code 0
-    }
-    "FAILURE" {
-        log_message "Error: Failed installing server. $expect_out(buffer)"
-        set exit_code 1
-    }
-    timeout {
-        log_message "Error: Timed out installing the server"
-        set exit_code 1
+    "Number of key(s) added: 1" {
+        log_message "SSH authorization key transferred to colibri"
     }
 }
-
-exit $exit_code
