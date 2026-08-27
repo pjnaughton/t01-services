@@ -26,7 +26,7 @@ ioc-instance:
      nfs:
        path: /vol/science
        server: cs04r-nas01-02.diamond.ac.uk
-       readOnly: true
+       readOnly: false
 
   volumeMounts:
    - name: dls-science
