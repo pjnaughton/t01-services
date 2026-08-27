@@ -12,6 +12,8 @@ ioc-instance:
   env:
     - name : FPGA_BIN_DIR
       value: /dls/science/users/ygn40972/power-supplies
+# Ensure the server log files are not in /opt/server as they will be deleted
+# when the next pod is created
     - name : SERVER_LOG_FILE
       value: /opt/server.log
     - name: TELNET_SERVER
