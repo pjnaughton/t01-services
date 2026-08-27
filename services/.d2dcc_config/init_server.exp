@@ -67,7 +67,8 @@ wait
 
 log_message "\n***** Transfer SSH Authorisationkey to colibri"
 # Need to transfer the FPGA binary
-spawn ssh-copy-id -i /tmp/.ssh/id_${hostname}.pub root@$hostname
+set home_dir $env(HOME)
+spawn ssh-copy-id -i ${home_dir}/.ssh/id_${hostname} root@$hostname
 expect {
     "yes/no" {
         send "yes\r"

@@ -3,25 +3,27 @@ set -e
 
 #  Create SSH authorisation key for the colibri ################################
 
-mkdir -p ~/.ssh
-ssh-keygen -t rsa -N "" -f ~/.ssh/id_${NAME}
+mkdir -p ${HOME}/.ssh
+ssh-keygen -t rsa -N "" -f ${HOME}/.ssh/id_${NAME}
 
 #  Configure Hostname and set up SSH Authorisation #############################
 
 expect ${CONFIG_DIR}/init_server.exp
 
-# Transfer Relevant files and start the server
+# Transfer Relevant files and start the server #################################
 
 installer_dir=/tmp
-scp "-O" "${D2DCC_DIR}/bin/linux-arm_elhf/installer_server.sh" \
+
+export SSH_OPTION="-o PubkeyAcceptedKeyTypes=ssh-rsa"
+scp -O ${SSH_OPTION} ${D2DCC_DIR}/bin/linux-arm_elhf/installer_server.sh \
     root@$NAME:$installer_dir
 
-ssh root@$NAME "
+ssh ${SSH_OPTION} root@$NAME "
 echo \"export K8S_FPGA_TYPE=$FPGA_TYPE
 export K8S_FPGA_TYPE_NUMBER=$FPGA_TYPE_NUMBER
 export LOG_FILE=$SERVER_LOG_FILE\" > /opt/server_env"
 
-ssh root@$NAME "cd $installer_dir; ./installer_server.sh -i"
+ssh ${SSH_OPTION} root@$NAME "cd $installer_dir; ./installer_server.sh -i"
 
 # Start Soft IOC ###############################################################
 
