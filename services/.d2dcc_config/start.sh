@@ -4,7 +4,7 @@ set -e
 #  Create SSH authorisation key for the colibri ################################
 
 mkdir -p ${HOME}/.ssh
-SSH_KEY=${HOME}/.ssh/id_${NAME}
+export SSH_KEY=${HOME}/.ssh/id_${NAME}
 eval "$(ssh-agent -s)"
 ssh-keygen -t rsa -N "" -f $SSH_KEY
 ssh-add $SSH_KEY
