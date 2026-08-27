@@ -32,6 +32,9 @@ ioc-instance:
    - name: dls-science
      mountPath: /dls/science
 
+  dataVolume:
+    hostPath: /dls/science/users/ygn40972/power-supplies
+
   nodeSelector:
     nodetype: accelerator-ioc
 
