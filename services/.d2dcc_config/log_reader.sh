@@ -5,18 +5,22 @@ LOG_STORE=/data/$NAME/server.log
 touch $LOG_STORE
 PID_FILE=/var/run/server.pid
 
+log_message() {
+    echo "$1" >> $LOG_STORE
+}
+
 copy_file() {
     # Only read the lines not previously read
     local line_prev_copied=$(($(cat $LOG_STORE | wc -l) + 1))
     local output=$(ssh $SSH_OPTION root@$NAME "tail -n +$line_prev_copied $SERVER_LOG_FILE")
     local result=$?
     if [ $result -ne 0 ]; then
-        echo "Failed to read log file"
+        log_message "Failed to read log file"
     else
         # Don't append if there is nothing new in the logfile
         # Will append a newline to local logfile
         [[ -n ${output} ]] &&
-            echo "$output" >> $LOG_STORE
+            log_message "$output"
     fi
     return $result
 }
@@ -25,7 +29,7 @@ check_pid() {
     ssh $SSH_OPTION root@$NAME "kill -0 \$(cat $PID_FILE) 2>/dev/null"
     local result=$?
     if [ $result -ne 0 ]; then
-        echo "Problem reading the PID file. Is the server running?"
+        log_message "Problem reading the PID file. Is the server running?"
         return $result
     fi
 }
@@ -38,5 +42,5 @@ until (( fail_count > 5 )); do
     sleep 20
 done
 
-echo "Log Reader failed" >&2
+log_message "Log Reader failed"
 exit 1
