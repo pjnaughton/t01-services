@@ -3,34 +3,12 @@
 mkdir -p /data/$NAME
 LOG_STORE=/data/$NAME/server.log
 touch $LOG_STORE
-
 PID_FILE=/var/run/server.pid
-
-exec_ssh_command() {
-    local hostname=$NAME
-    local command="$1"
-    # Skip the lines for expect lines
-    expect << EOF | tr -d '\r' | tail -n +3
-        set timeout 10
-        spawn ssh root@$hostname "${command}"
-        expect {
-            "password" {
-                send "root\r"
-                exp_continue
-            }
-            eof {
-                    # Capture the exit status of the spawned SSH process
-                    catch wait result
-                    exit [lindex \$result 3]
-                }
-        }
-EOF
-}
 
 copy_file() {
     # Only read the lines not previously read
     local line_prev_copied=$(($(cat $LOG_STORE | wc -l) + 1))
-    local output=$(exec_ssh_command "tail -n +$line_prev_copied $SERVER_LOG_FILE")
+    local output=$(ssh $SSH_OPTION root@$NAME "tail -n +$line_prev_copied $SERVER_LOG_FILE")
     local result=$?
     if [ $result -ne 0 ]; then
         echo "Failed to read log file"
@@ -44,7 +22,7 @@ copy_file() {
 }
 
 check_pid() {
-    exec_ssh_command "kill -0 \\\$(cat $PID_FILE) 2>/dev/null"
+    ssh $SSH_OPTION root@$NAME "kill -0 \$(cat $PID_FILE) 2>/dev/null"
     local result=$?
     if [ $result -ne 0 ]; then
         echo "Problem reading the PID file. Is the server running?"
