@@ -3,7 +3,8 @@ set -e
 
 #  Create SSH authorisation key for the colibri ################################
 
-ssh-keygen -t rsa -N "" -f ~/id_${NAME}
+mkdir -p ~/.ssh
+ssh-keygen -t rsa -N "" -f ~/.ssh/id_${NAME}
 
 #  Configure Hostname and set up SSH Authorisation #############################
 
