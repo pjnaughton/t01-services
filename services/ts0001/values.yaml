@@ -22,14 +22,14 @@ ioc-instance:
       value: /epics/support/d2dcc
 
   volumes:
-   - name: dls_sw-work
+   - name: dls-sw-work
      nfs:
        path: /exports/dls_sw/work
        server: cs03r-sc-nas-svm02.diamond.ac.uk
        readOnly: true
 
   volumeMounts:
-   - name: dls_sw-work
+   - name: dls-sw-work
      mountPath: /dls_sw/work
 
   nodeSelector:
