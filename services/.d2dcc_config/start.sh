@@ -1,4 +1,5 @@
 #!/bin/bash
+
 set -xe
 
 # Create directory on PVC for the IOC

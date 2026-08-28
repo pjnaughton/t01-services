@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set +x
 
 TARGET_LOG_FILE=/data/${NAME}/server.log
 touch $TARGET_LOG_FILE
