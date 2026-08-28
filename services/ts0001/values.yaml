@@ -29,7 +29,7 @@ ioc-instance:
        readOnly: true
 
   volumeMounts:
-   - name: dls-sw-work
+   - name: dlssw-work
      mountPath: /dls_sw/work
 
   nodeSelector:
