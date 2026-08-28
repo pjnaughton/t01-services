@@ -2,11 +2,11 @@
 set -xe
 
 # Create directory on PVC for the IOC
-mkdir /data/${NAME}
+mkdir -p /data/${NAME}
 
 #  Create SSH authorisation key for the colibri ################################
 
-mkdir -p ${HOME}/.ssh
+mkdir ${HOME}/.ssh
 export SSH_KEY="${HOME}/.ssh/id_$NAME"
 eval "$(ssh-agent -s)"
 ssh-keygen -t rsa -N "" -f $SSH_KEY
