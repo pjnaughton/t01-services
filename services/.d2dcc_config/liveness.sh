@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ex
+set -xe
 
 case "$FPGA_TYPE" in
     SIC_DPS)

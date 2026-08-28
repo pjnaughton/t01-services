@@ -1,5 +1,8 @@
 #!/bin/bash
-set -e
+set -xe
+
+# Create directory on PVC for the IOC
+mkdir /data/${NAME}
 
 #  Create SSH authorisation key for the colibri ################################
 
@@ -26,9 +29,7 @@ scp -O $SSH_OPTION ${D2DCC_DIR}/bin/linux-arm_elhf/installer_server.sh \
 # otherwise get deleted.
 ssh $SSH_OPTION root@$NAME "cd $installer_dir; ./installer_server.sh -n"
 
-ssh $SSH_OPTION root@$NAME "touch $SERVER_LOG_FILE"
-ssh $SSH_OPTION root@$NAME "
-echo \"export K8S_FPGA_TYPE=$FPGA_TYPE
+ssh $SSH_OPTION root@$NAME "echo \"export K8S_FPGA_TYPE=$FPGA_TYPE
 export K8S_FPGA_TYPE_NUMBER=$FPGA_TYPE_NUMBER
 export LOG_FILE=$SERVER_LOG_FILE\" > /opt/server/server_env"
 
@@ -38,11 +39,11 @@ ssh $SSH_OPTION root@$NAME "/opt/etc/init.d/tcpserver start"
 
 case "$FPGA_TYPE" in
     SIC_DPS)
-        echo >&1 "Running DPS Start Script" 
+        echo "Running DPS Start Script"
         IOC_DIR=${D2DCC_DIR}/dpsApp
         ;;
     SOFB | FOFB)
-        echo >&1 "Running FRC Start Script"
+        echo "Running FRC Start Script"
         IOC_DIR=${D2DCC_DIR}/frcApp
         ;;
     *)
@@ -51,4 +52,8 @@ case "$FPGA_TYPE" in
         ;;
 esac
 
+export PERSISTENCE_FILE="/data/${NAME}/${NAME}.state"
+export ERROR_FILE="${IOC_DIR}/install_d/errors.txt"
+# Make both the log reader and runiocrun in same subshell and exit when
+# either fails
 (trap 'kill 0' SIGINT; source ${CONFIG_DIR}/log_reader.sh & ${IOC_DIR}/runioc)
