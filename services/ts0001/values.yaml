@@ -11,7 +11,7 @@ ioc-instance:
 
   env:
     - name : FPGA_BIN_DIR
-      value: /dls_sw/work/tmp/d2dcc-fpga/
+      value: /dls/tmp/d2dcc-fpga/
 # Ensure the server log files are not in /opt/server as they will be deleted
 # when the next pod is created
     - name : SERVER_LOG_FILE
@@ -22,15 +22,15 @@ ioc-instance:
       value: /epics/support/d2dcc
 
   volumes:
-   - name: dls-sw-work
+   - name: dls-tmp
      nfs:
-       path: /exports/dls_sw/work
-       server: cs03r-sc-nas-svm02.diamond.ac.uk
+       path: /vol/dls_tmp/dls_tmp
+       server: cs04r-nas01-02.diamond.ac.uk
        readOnly: true
 
   volumeMounts:
-   - name: dlssw-work
-     mountPath: /dls_sw/work
+   - name: dls-tmp
+     mountPath: /dls/tmp
 
   nodeSelector:
     nodetype: accelerator-ioc
