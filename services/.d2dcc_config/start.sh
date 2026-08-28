@@ -57,4 +57,4 @@ export PERSISTENCE_FILE="/data/${NAME}/${NAME}.state"
 export ERROR_FILE="${IOC_DIR}/install_d/errors.txt"
 # Make both the log reader and runiocrun in same subshell and exit when
 # either fails
-(trap 'kill 0' SIGINT; source ${CONFIG_DIR}/log_reader.sh & ${IOC_DIR}/runioc)
+(trap 'kill 0' SIGINT; ${CONFIG_DIR}/log_reader.sh & ${IOC_DIR}/runioc)

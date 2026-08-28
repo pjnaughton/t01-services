@@ -10,7 +10,6 @@ import string
 import argparse
 from pathlib import Path
 import datetime
-from dataclasses import dataclass
 import sys
 
 SIC_STRING = """
@@ -42,34 +41,36 @@ CIA: PSI Controller card/SIC/FRC
 """
 
 
-@dataclass
 class ColumnConfig:
-    # Number of columns until the data begins
+    #   Number of columns until the data begins
     #   We dont mind removing column names here as they
     #   are renamed by column_names
     header_size: int
 
-    # Index (numeric) of the desired columns
+    #   Index (numeric) of the desired columns
     #   Needs to use index and not column name as the
     #   FOFB groupings share the header with PSI
     #   Controller Type
     relevant_columns: list
 
-    # What to rename the column in the dataframe
+    #   What to rename the column in the dataframe
     #   same columns must be the same between pages
     column_names: list
 
+    def __init__(self, header_size, columns, column_names):
+        self.header_size = header_size
+        self.relevant_columns = self.columns_to_index(columns)
+        self.column_names = column_names
 
-def columns_to_index(cols):
-    def column_to_index(col):
-        num = 0
-        for c in col:
-            if c in string.ascii_letters:
-                num = num * 26 + (ord(c.upper()) - ord("A")) + 1
-        return num - 1
+    def columns_to_index(self, cols):
+        def column_to_index(col):
+            num = 0
+            for c in col:
+                if c in string.ascii_letters:
+                    num = num * 26 + (ord(c.upper()) - ord("A")) + 1
+            return num - 1
 
-    return [column_to_index(col) for col in cols]
-
+        return [column_to_index(col) for col in cols]
 
 """
 NOTE:   I have put placeholders XX and XY as the columns of Terminal Server and
@@ -77,7 +78,7 @@ NOTE:   I have put placeholders XX and XY as the columns of Terminal Server and
         to the order of the column names.
 """
 
-LINAC_COLUMNS_OF_INTEREST = columns_to_index(["A", "AL", "AM", "AC"])
+LINAC_COLUMNS_OF_INTEREST = ["A", "XX", "XY", "AC"]
 LINAC_COLUMN_NAMES = [
     "Magnet ID",
     "Terminal Server",
@@ -86,7 +87,7 @@ LINAC_COLUMN_NAMES = [
 ]
 LINAC_COLUMN_CONFIG = ColumnConfig(2, LINAC_COLUMNS_OF_INTEREST, LINAC_COLUMN_NAMES)
 
-BOOSTER_COLUMNS_OF_INTEREST = columns_to_index(["A", "BL", "BM", "BA", "BB", "BD"])
+BOOSTER_COLUMNS_OF_INTEREST = ["A", "XX", "XY", "BA", "BB", "BD"]
 BOOSTER_COLUMN_NAMES = [
     "Magnet ID",
     "Terminal Server",
@@ -99,7 +100,7 @@ BOOSTER_COLUMN_CONFIG = ColumnConfig(
     2, BOOSTER_COLUMNS_OF_INTEREST, BOOSTER_COLUMN_NAMES
 )
 
-CIA_COLUMNS_OF_INTEREST = columns_to_index(["A", "XX", "XY", "AP", "AU", "AV", "AX"])
+CIA_COLUMNS_OF_INTEREST = ["A", "XX", "XY", "AP", "AU", "AV", "AX"]
 CIA_COLUMN_NAMES = [
     "Magnet ID",
     "Terminal Server",
@@ -115,6 +116,7 @@ CIA_COLUMN_CONFIG = ColumnConfig(5, CIA_COLUMNS_OF_INTEREST, CIA_COLUMN_NAMES)
 NUM_CIAS = 24
 NUM_BOOSTERS = 4
 
+# LINAC is sheet 3, Booster sheets are 4-7, CIA sheets are 11-34
 LINAC_SHEET = [3]
 BOOSTER_SHEETS = [i for i in range(4, NUM_BOOSTERS + 4)]
 CIA_SHEETS = [i for i in range(11, NUM_CIAS + 11)]
@@ -193,7 +195,6 @@ def append_frc_magnets(file, magnets: pl.DataFrame):
         assert (
             len(terminal_ports) == 1
         ), "All FRC magnets must have the same terminal Port"
-        
         file.write(f"\n# FRC: {int(frc_index[0])}")
         file.write(
             SIC_TEMPLATE.substitute(
