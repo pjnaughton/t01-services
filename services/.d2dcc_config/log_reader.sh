@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 TARGET_LOG_FILE=/data/${NAME}/server.log
 touch $TARGET_LOG_FILE
 PID_FILE=/var/run/server.pid
