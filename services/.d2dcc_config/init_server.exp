@@ -7,13 +7,28 @@ set telnet_port $env(TELNET_PORT)
 
 set hostname $env(NAME)
 
-set host_network "dev"
+set host_network $env(HOST_NETWORK)
 
-proc log_message {message} {
-    puts stdout "\n$message"
+proc log_messages {messages} {
+    foreach message $messages {
+        puts stdout "\n$message"
+    }
 }
 
-log_message "\n***** Configure hostname on colibri *****"
+proc close_and_wait {spawn_id} {
+    close -i $spawn_id
+    wait -i $spawn_id
+}  
+
+proc error {spawn_id close messages} {
+    log_messages $messages
+    if {$close eq "true"} {
+        close_and_wait $spawn_id
+    }
+    exit 1
+}
+
+log_messages "\n***** Configure hostname on colibri *****"
 spawn telnet $telnet_server $telnet_port
 expect {
     "Connected to $telnet_server" {
@@ -21,19 +36,17 @@ expect {
         expect -re {.*#\s*}
     }
     "Connection closed by foreign host." {
-        log_message "Error: $telnet_server:$telnet_port refused the connection"
-        exit 1
+        error $spawn_id "false" \ 
+            "$telnet_server:$telnet_port refused the connection"
     }
     timeout {
-        log_message "Error: Timed out trying to connect to $telnet_server:$telnet_port."
-        log_message "Closing Telnet Connection"
-        close
-        wait
-        exit 1
+        error $spawn_id "true" \ 
+            "Error: Timed out trying to connect to $telnet_server:$telnet_port." \
+            "Closing Telnet Connection"
     }
     eof {
-        log_message "Error: Failed to connect to $telnet_server:$telnet_port."
-        exit 1
+        error $spawn_id "false" \ 
+            "Error: Failed to connect to $telnet_server:$telnet_port."
     }
 }
 
@@ -41,31 +54,26 @@ send "configure-network -w -r $host_network $hostname && echo SUCCESS || echo FA
 expect {
     "SUCCESS" {
         expect -re {.*#\s*}
-        log_message "Hostname configured to: $hostname"
-        log_message "Closing Telnet Connection"
+        log_messages "Hostname configured to: $hostname" \ 
+            "Closing Telnet Connection"
     }
     "FAILURE" {
-        log_message "ERROR: Failed to configure hostname $expect_out(buffer)"
-        log_message "Closing Telnet Connection"
-        close
-        wait
-        exit 1
+        error $spawn_id "true" \
+            "Error: Failed to configure hostname $expect_out(buffer)" \
+            "Closing Telnet Connection"
     }
     timeout {
-        log_message "ERROR: Timed out configuring the network."
-        log_message "Closing Telnet Connection"
-        close
-        wait
-        exit 1
+        error $spawn_id "true" \
+            "Error: Failed to configure hostname $expect_out(buffer)" \
+            "Closing Telnet Connection"
     }
 }
 
 # Delete any old ssh keys
 send "rm -f /root/.ssh/authorized_keys"
-close
-wait
+close_and_wait $spawn_id
 
-log_message "\n***** Transfer SSH Authorisationkey to colibri"
+log_messages "\n***** Transfer SSH Authorisation key to colibri"
 # Need to transfer the FPGA binary
 set ssh_key $env(SSH_KEY)
 spawn ssh-copy-id -i $ssh_key root@$hostname
@@ -79,6 +87,6 @@ expect {
         exp_continue
     }
     "Number of key(s) added: 1" {
-        log_message "SSH authorization key transferred to colibri"
+        log_messages "SSH authorization key transferred to colibri"
     }
 }

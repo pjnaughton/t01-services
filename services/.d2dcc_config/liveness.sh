@@ -7,7 +7,7 @@ case "$FPGA_TYPE" in
         ;;
     SOFB | FOFB)
         for MAGNET_NAME in "MAGNET_ONE" "MAGNET_TWO" "MAGNET_THREE" "MAGNET_FOUR"; do
-            if [[ ! -z "${!MAGNET_NAME}" ]]; then
+            if [[ ! -z "$MAGNET_NAME" ]]; then
                 LIVENESS_PV+=( "${!MAGNET_NAME}:STATE" )
             fi
         done

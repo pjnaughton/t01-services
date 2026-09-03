@@ -2,7 +2,7 @@
 
 set +x
 
-TARGET_LOG_FILE=/data/${NAME}/server.log
+TARGET_LOG_FILE=/tmp/server.log
 touch $TARGET_LOG_FILE
 PID_FILE=/var/run/server.pid
 
@@ -14,7 +14,7 @@ log_message() {
 copy_file() {
     # Only read the lines not previously read
     local line_prev_copied=$(($(cat $TARGET_LOG_FILE | wc -l) + 1))
-    local output=$(ssh $SSH_OPTION root@$NAME "tail -n +$line_prev_copied $SERVER_LOG_FILE")
+    local output=$(send_ssh_command "tail -n +$line_prev_copied $SERVER_LOG_FILE")
     local result=$?
     if [ $result -ne 0 ]; then
         log_message "Error: Failed to read log file"
@@ -28,22 +28,7 @@ copy_file() {
     return $result
 }
 
-check_pid() {
-    ssh $SSH_OPTION root@$NAME "kill -0 \$(cat $PID_FILE) 2>/dev/null"
-    local result=$?
-    if [ $result -ne 0 ]; then
-        log_message "Error: Problem reading the PID file. Is the server running?"
-        return $result
-    fi
-}
-
-fail_count=0
-until (( fail_count > 5 )); do
-    if ! check_pid || ! copy_file; then
-        ((fail_count++))
-    fi
-    sleep 20
+while true; do
+    copy_file
+    sleep 5
 done
-
-log_message "Error: Log Reader failed"
-exit 1
