@@ -2,8 +2,8 @@
 
 set timeout 30
 
-set telnet_server $env(TELNET_SERVER)
-set telnet_port $env(TELNET_PORT)
+set telnet_server $env(TERMINAL_SERVER)
+set telnet_port $env(TERMINAL_PORT)
 
 set hostname $env(NAME)
 
