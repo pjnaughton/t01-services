@@ -51,7 +51,7 @@ ioc-instance:
       command:
         - "bash"
       image: gitlab.diamond.ac.uk:5050/controls/containers/iocs/ioc-d2dcc/ioc-d2dcc-linux-runtime:add-dcc-modules
-      name: initalise_server
+      name: initalise-server
 
 # One entry per IOC. Every entry MUST have a NAME - it is appended to the
 # release name, so a folder called ixx-ea-thing deploys ixx-ea-thing-01 and
