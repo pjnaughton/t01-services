@@ -13,7 +13,7 @@ ioc-instance:
   env:
 #    - name : FPGA_BIN_DIR
 #      value: /dls/tmp/d2dcc-fpga/
-  - name: HOST_NETWORK   # Must match netwroks in configure-network (dev or pri)
+  - name: HOST_NETWORK   # Must match networks in configure-network (dev or pri)
     value: dev
   - name: SERVER_LOG_FILE
     value: /opt/server.log
@@ -44,6 +44,14 @@ ioc-instance:
     operator: Equal
     value: accelerator-ioc
     effect: NoSchedule
+
+  initContainers:
+    - args:
+        - "-c while true; do sleep 100000; done"
+      command:
+        - "bash"
+      image: gitlab.diamond.ac.uk:5050/controls/containers/iocs/ioc-d2dcc/ioc-d2dcc-linux-runtime:add-dcc-modules
+      name: initalise_server
 
 # One entry per IOC. Every entry MUST have a NAME - it is appended to the
 # release name, so a folder called ixx-ea-thing deploys ixx-ea-thing-01 and
