@@ -47,9 +47,9 @@ ioc-instance:
 
   initContainers:
     - args:
-        - "-c sleep 1000"
+        - "sleep 10000"
       command:
-        - "bash"
+        - "sh"
       image: gitlab.diamond.ac.uk:5050/controls/containers/iocs/ioc-d2dcc/ioc-d2dcc-linux-runtime:add-dcc-modules
       name: initalise-server
 
